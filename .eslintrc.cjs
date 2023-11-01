@@ -10,7 +10,7 @@ module.exports = {
     "plugin:react/jsx-runtime",
     "prettier",
   ],
-  ignorePatterns: ["dist", ".eslintrc.cjs"],
+  ignorePatterns: ["dist"],
   parser: "@typescript-eslint/parser",
   plugins: ["@typescript-eslint", "react-refresh", "react"],
   rules: {

@@ -32,13 +32,15 @@ jobs:
         name: Install NPM Dependencies
       - run: npm run build
         name: NPM Build
+      - run: npm run lint
+        name: Run Linter
       - uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         name: Deploy Files
         with:
           server: ${{ secrets.url }}
           username: ${{ secrets.username }}
           password: ${{ secrets.password }}
-          local-dir: './dist/'
+          local-dir: "./dist/"
           exclude: |
             **/.git*
             **/.git*/**
