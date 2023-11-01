@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import {
+  CleanupLocalStorage,
   handleNkLoginRequest,
   handleNkLoginReturn,
   NkAuthRedirectPath,
@@ -44,7 +45,10 @@ export default function NkAuthProvider(props: INkAuthProviderProps) {
   // Effect to handle automatic login
   useEffect(() => {
     // Do nothing if we're not at the NK Redirect pathing
-    if (location.pathname != NkAuthRedirectPath) return;
+    if (location.pathname != NkAuthRedirectPath) {
+      CleanupLocalStorage(); // Ensure we have no bogus items in local storage
+      return;
+    }
 
     try {
       // Handle the NK login attempt
