@@ -11,6 +11,8 @@ jobs:
   build_and_deploy_job:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
+    env:
+      VITE_MAP_KEY: ${{ secrets.vite_map_key }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
