@@ -32,7 +32,7 @@ jobs:
         name: Install NPM Dependencies
       - run: npm run build
         name: NPM Build
-      - uses: SamKirkland/FTP-Deploy-Action@v4
+      - uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         name: Deploy Files
         with:
           server: ${{ secrets.url }}
