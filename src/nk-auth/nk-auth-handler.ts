@@ -88,7 +88,14 @@ export function CleanupLocalStorage() {
   for (let i = 0; i < localStorage.length; i++) {
     // Get the information about the storage
     const storageKey = localStorage.key(i)!;
-    const storageItem: unknown = JSON.parse(localStorage.getItem(storageKey)!)!;
+    let storageItem: unknown;
+
+    // If the redirect fails, just ignore it
+    try {
+      storageItem = JSON.parse(localStorage.getItem(storageKey)!)!;
+    } catch (Error) {
+      continue;
+    }
 
     // If this is redirect data, remove it
     if (isRedirectData(storageItem)) {
@@ -107,7 +114,10 @@ function isRedirectData(data: unknown): boolean {
 
   // Validate that we have the proper data
   return (
-    redirectData.state !== undefined && redirectData.expiresOn !== undefined
+    data !== null &&
+    data !== undefined &&
+    redirectData.state !== undefined &&
+    redirectData.expiresOn !== undefined
   );
 }
 
