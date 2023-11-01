@@ -47,5 +47,3 @@ jobs:
             **/node_modules/**
             **/.well-known/**
             **/cgi-bin/**
-
-
