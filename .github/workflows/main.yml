@@ -32,10 +32,10 @@ jobs:
             ${{ runner.os }}-
       - run: npm install
         name: Install NPM Dependencies
-      - run: npm run build
-        name: NPM Build
       - run: npm run lint
         name: Run Linter
+      - run: npm run build
+        name: NPM Build
       - uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         name: Deploy Files
         with:
