@@ -40,10 +40,12 @@ jobs:
           server: ${{ secrets.url }}
           username: ${{ secrets.username }}
           password: ${{ secrets.password }}
-          local-dir: './dist/'
+          local-dir: "./dist/"
           exclude: |
             **/.git*
             **/.git*/**
             **/node_modules/**
             **/.well-known/**
             **/cgi-bin/**
+
+
