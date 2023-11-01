@@ -1,7 +1,10 @@
 import { FaUserAstronaut } from "react-icons/fa";
 import NavItem from "./navItem.tsx";
+import useNkAuth from "../../useNkAuth.ts";
 
 function Navbar() {
+  const nkAuth = useNkAuth();
+
   return (
     <>
       <div className="flex flex-row items-center justify-between bg-blue-400 px-5 py-3">
@@ -13,9 +16,14 @@ function Navbar() {
             On Water
           </NavItem>
           <NavItem route={"/"}>Erg Times</NavItem>
-          <NavItem route={"/"}>
+          <button
+            onClick={() => {
+              // Handle the NK login request
+              nkAuth.handleNkLogin({ redirectLocation: location.pathname });
+            }}
+          >
             <FaUserAstronaut size={25} />
-          </NavItem>
+          </button>
         </div>
       </div>
     </>
