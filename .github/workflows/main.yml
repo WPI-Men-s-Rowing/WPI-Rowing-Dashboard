@@ -39,4 +39,9 @@ jobs:
           username: ${{ secrets.username }}
           password: ${{ secrets.password }}
           local-dir: './dist/'
-          server-dir: '/public_html/'
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.well-known/**
+            **/cgi-bin/**
