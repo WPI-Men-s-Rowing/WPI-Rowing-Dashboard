@@ -13,10 +13,14 @@
   },
   "dependencies": {
     "@types/mapbox-gl": "^2.7.17",
+    "localforage": "^1.10.0",
     "mapbox-gl": "^2.14.1",
+    "match-sorter": "^6.3.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-icons": "^4.11.0"
+    "react-icons": "^4.11.0",
+    "react-router-dom": "^6.18.0",
+    "sort-by": "^1.2.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
