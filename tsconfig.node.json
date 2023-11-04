@@ -9,7 +9,8 @@
   },
   "include": [
     ".eslintrc.cjs",
-    ".lintstagedrc.js",
+    "eslint.config.js",
+    "lint-staged.config.js",
     "vite.config.ts",
     "vitest.config.ts",
     "postcss.config.js",
