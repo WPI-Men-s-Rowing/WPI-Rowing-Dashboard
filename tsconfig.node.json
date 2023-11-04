@@ -8,9 +8,9 @@
     "strictNullChecks": true
   },
   "include": [
-    ".eslintrc.cjs",
-    "eslint.config.js",
+    "packages/eslint-config-custom/react.js",
     "lint-staged.config.js",
+    ".prettierrc.js",
     "vite.config.ts",
     "vitest.config.ts",
     "postcss.config.js",

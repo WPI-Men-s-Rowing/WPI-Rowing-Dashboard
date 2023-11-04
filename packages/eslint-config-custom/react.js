@@ -1,5 +1,8 @@
+const { resolve } = require("node:path");
+
+const project = resolve(process.cwd(), "tsconfig.json");
+
 module.exports = {
-  root: true,
   env: { browser: true, es2020: true },
   extends: [
     "eslint:recommended",
@@ -9,8 +12,11 @@ module.exports = {
     "plugin:react/recommended",
     "plugin:react/jsx-runtime",
     "prettier",
-  ],
-  ignorePatterns: ["dist"],
+    "turbo",
+    "plugin:mdx/recommended",
+    "plugin:storybook/recommended"
+  ].map(require.resolve),
+  ignorePatterns: ["dist/", "node_modules/"],
   parser: "@typescript-eslint/parser",
   plugins: ["@typescript-eslint", "react-refresh", "react"],
   rules: {
@@ -26,17 +32,13 @@ module.exports = {
     "@typescript-eslint/no-empty-interface": "warn",
   },
   parserOptions: {
-    ecmaVersion: "latest",
-    sourceType: "module",
-    project: ["./tsconfig.json", "./tsconfig.node.json"],
-    tsconfigRootDir: __dirname,
-    ecmaFeatures: {
-      jsx: true,
-    },
+    project,
   },
   settings: {
-    react: {
-      version: "detect",
+    "import/resolver": {
+      typescript: {
+        project,
+      },
     },
   },
 };
