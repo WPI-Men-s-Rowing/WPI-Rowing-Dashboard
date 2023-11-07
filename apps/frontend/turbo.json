@@ -6,6 +6,7 @@
       "outputs": ["dist/**"]
     },
     "dev": {
+      "dotEnv": [".env.development.local"],
       "env": ["VITE_MAP_KEY"]
     }
   }
