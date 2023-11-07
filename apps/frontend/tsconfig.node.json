@@ -6,7 +6,8 @@
     "module": "nodenext",
     "target": "ESNext",
     "moduleResolution": "nodenext",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "strictNullChecks": true
   },
   "include": [
     ".eslintrc.cjs",
