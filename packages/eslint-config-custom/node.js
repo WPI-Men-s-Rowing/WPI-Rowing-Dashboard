@@ -11,7 +11,7 @@ module.exports = {
     "prettier",
     "turbo",
     "plugin:mdx/recommended",
-  ].map(require.resolve),
+  ],
   ignorePatterns: ["dist/", "node_modules/"],
   parser: "@typescript-eslint/parser",
   plugins: ["@typescript-eslint"],

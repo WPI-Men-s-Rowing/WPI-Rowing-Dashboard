@@ -1,0 +1,9 @@
+{
+  "watch": ["../../packages", "./"],
+  "ext": "cjs,mjs,js,cts,mts,ts,json,prisma",
+  "exec": "node -r ts-node/register src/bin/www.ts",
+  "events": {
+    "start": "pnpm run typecheck && pnpm run lint",
+    "restart": "pnpm run typecheck && pnpm run lint"
+  }
+}

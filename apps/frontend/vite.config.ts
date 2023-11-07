@@ -9,5 +9,8 @@ export default defineConfig({
   plugins: [react(), eslint()],
   server: {
     open: true,
+    proxy: {
+      "/api": "http://localhost:3001",
+    },
   },
 });
