@@ -2,7 +2,11 @@
   "extends": ["//"],
   "pipeline": {
     "build": {
+      "env": ["VITE_MAP_KEY"],
       "outputs": ["dist/**"]
+    },
+    "dev": {
+      "env": ["VITE_MAP_KEY"]
     }
   }
 }
