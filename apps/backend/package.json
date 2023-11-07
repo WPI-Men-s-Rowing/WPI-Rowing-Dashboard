@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon",
     "typecheck": "tsc",
-    "lint": "eslint --max-warnings 0 --report-unused-disable-directives ."
+    "lint": "eslint --max-warnings 0 --report-unused-disable-directives --fix ."
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",

@@ -8,7 +8,7 @@
     "clean": "rm -rf dist",
     "build": "tsc && vite build",
     "typecheck": "tsc",
-    "lint": "eslint --max-warnings 0 --report-unused-disable-directives .",
+    "lint": "eslint --max-warnings 0 --report-unused-disable-directives --fix .",
     "preview": "vite preview"
   },
   "dependencies": {
