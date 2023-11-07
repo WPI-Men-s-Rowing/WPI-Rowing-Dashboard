@@ -1,6 +1,17 @@
 {
-  "compilerOptions": {},
-  "exclude": ["node_modules"],
-  "extends": "tsconfig/base.json",
-  "include": ["postcss.config.js", "tailwind.config.ts", "vite.config.ts"]
+  "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "allowSyntheticDefaultImports": true,
+    "strictNullChecks": true
+  },
+  "include": [
+    ".eslintrc.cjs",
+    "vite.config.ts",
+    "postcss.config.js",
+    "tailwind.config.ts",
+    ".storybook"
+  ]
 }

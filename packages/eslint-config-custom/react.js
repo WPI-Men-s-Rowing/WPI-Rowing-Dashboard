@@ -15,7 +15,7 @@ module.exports = {
     "turbo",
     "plugin:mdx/recommended",
     "plugin:storybook/recommended",
-  ].map(require.resolve),
+  ],
   ignorePatterns: ["dist/", "node_modules/"],
   parser: "@typescript-eslint/parser",
   plugins: ["@typescript-eslint", "react-refresh", "react"],
@@ -39,6 +39,9 @@ module.exports = {
       typescript: {
         project,
       },
+    },
+    react: {
+      version: "detect",
     },
   },
 };

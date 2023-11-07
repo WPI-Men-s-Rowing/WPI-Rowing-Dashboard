@@ -5,7 +5,7 @@
   "compilerOptions": {
     "allowJs": false,
     "lib": ["esnext"],
-    "module": "ESNext",
+    "module": "nodenext",
     "target": "ESNext",
     "moduleResolution": "nodenext"
   }

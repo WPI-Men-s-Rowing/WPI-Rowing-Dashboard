@@ -77,9 +77,6 @@ importers:
       eslint-config-custom:
         specifier: workspace:*
         version: link:../../packages/eslint-config-custom
-      lint-staged-config:
-        specifier: workspace:*
-        version: link:../../packages/lint-staged-config
       postcss:
         specifier: ^8.4.31
         version: 8.4.31
@@ -128,8 +125,6 @@ importers:
       eslint-plugin-storybook:
         specifier: ^0.6.13
         version: 0.6.15(eslint@8.53.0)(typescript@5.2.2)
-
-  packages/lint-staged-config: {}
 
   packages/tsconfig: {}
 
