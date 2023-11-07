@@ -14,7 +14,7 @@ module.exports = {
     "prettier",
     "turbo",
     "plugin:mdx/recommended",
-    "plugin:storybook/recommended"
+    "plugin:storybook/recommended",
   ].map(require.resolve),
   ignorePatterns: ["dist/", "node_modules/"],
   parser: "@typescript-eslint/parser",
