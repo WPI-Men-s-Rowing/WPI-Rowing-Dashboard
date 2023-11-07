@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+  },
+  "exclude": ["node_modules"],
+  "extends": "tsconfig/base.json",
+  "include": ["postcss.config.js", "tailwind.config.ts", "vite.config.ts"]
+}
