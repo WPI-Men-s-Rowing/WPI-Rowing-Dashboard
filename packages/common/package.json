@@ -9,7 +9,9 @@
     "typecheck": "tsc",
     "lint": "eslint --max-warnings 0 --report-unused-disable-directives --fix ."
   },
-  "dependencies": {},
+  "dependencies": {
+    "zod": "^3.22.4"
+  },
   "devDependencies": {
     "eslint-config-custom": "workspace:*",
     "tsconfig": "workspace:*",
