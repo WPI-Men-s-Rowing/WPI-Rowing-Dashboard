@@ -1,6 +1,6 @@
 import "./App.css";
-import Navbar from "./compontents/navbar/navbar.tsx";
 import DataSelector from "./compontents/dataSelector.tsx";
+import Navbar from "./compontents/navbar/navbar.tsx";
 
 function App() {
   return (

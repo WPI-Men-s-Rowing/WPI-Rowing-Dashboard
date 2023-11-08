@@ -1,6 +1,6 @@
 import { FaUserAstronaut } from "react-icons/fa";
-import NavItem from "./navItem.tsx";
 import useNkAuth from "../../nk-auth/useNkAuth.ts";
+import NavItem from "./navItem.tsx";
 
 function Navbar() {
   const nkAuth = useNkAuth();

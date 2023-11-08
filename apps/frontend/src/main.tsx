@@ -1,8 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import HttpsRedirect from "react-https-redirect";
 import App from "./App.tsx";
 import "./index.css";
-import HttpsRedirect from "react-https-redirect";
 import NkAuthProvider from "./nk-auth/NkAuthProvider.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

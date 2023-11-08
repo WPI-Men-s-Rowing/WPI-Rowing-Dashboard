@@ -1,6 +1,6 @@
-import createError, { HttpError } from "http-errors";
-import express, { Express, NextFunction, Request, Response } from "express";
 import cookieParser from "cookie-parser";
+import express, { Express, NextFunction, Request, Response } from "express";
+import createError, { HttpError } from "http-errors";
 import logger from "morgan";
 import numbersRouter from "./routes/numbers.ts";
 

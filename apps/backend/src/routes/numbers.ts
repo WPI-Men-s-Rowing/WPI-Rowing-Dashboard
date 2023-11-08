@@ -1,5 +1,5 @@
-import express, { Router, Request, Response } from "express";
-import { IEvenResponse, IEvenRequest } from "common";
+import { IEvenRequest, IEvenResponse } from "common";
+import express, { Request, Response, Router } from "express";
 
 const router: Router = express.Router();
 

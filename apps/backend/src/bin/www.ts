@@ -1,7 +1,7 @@
-import app from "../app.ts";
 import http from "http";
-import { AddressInfo } from "net";
 import { createHttpTerminator } from "http-terminator";
+import { AddressInfo } from "net";
+import app from "../app.ts";
 
 // Get port from environment and store in Express
 const port: string | undefined = "3001";
