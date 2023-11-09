@@ -4,7 +4,7 @@
   "pipeline": {
     "db:format": {},
     "lint": {
-      "dependsOn": ["db:format", "typecheck"]
+      "dependsOn": ["db:format", "db:generate", "typecheck"]
     }
   }
 }

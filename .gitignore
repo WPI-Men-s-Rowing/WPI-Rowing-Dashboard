@@ -12,6 +12,7 @@
 **/dist-ssr
 **/*.local
 **/.turbo
+**/.prisma
 
 # Editor directories and files
 .vscode/*
