@@ -6,10 +6,9 @@
   "scripts": {
     "dev": "vite",
     "clean": "rm -rf dist",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "typecheck": "tsc",
-    "lint": "eslint --max-warnings 0 --report-unused-disable-directives --fix .",
-    "preview": "vite preview"
+    "lint": "eslint --max-warnings 0 --report-unused-disable-directives --fix ."
   },
   "dependencies": {
     "common": "workspace:*",

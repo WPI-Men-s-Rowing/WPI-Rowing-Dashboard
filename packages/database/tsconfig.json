@@ -1,0 +1,8 @@
+{
+  "extends": "tsconfig/node.json",
+  "include": ["src", "prisma"],
+  "ts-node": {
+    "esm": true,
+    "swc": true
+  }
+}

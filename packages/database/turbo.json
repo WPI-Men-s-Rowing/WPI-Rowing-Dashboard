@@ -1,0 +1,10 @@
+{
+  "extends": ["//"],
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "db:format": {},
+    "lint": {
+      "dependsOn": ["db:format", "typecheck"]
+    }
+  }
+}

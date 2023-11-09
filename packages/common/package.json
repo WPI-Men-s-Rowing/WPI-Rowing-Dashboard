@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "scripts": {
     "typecheck": "tsc",
     "lint": "eslint --max-warnings 0 --report-unused-disable-directives --fix ."

@@ -1,9 +1,9 @@
 {
   "watch": ["../../packages", "./"],
   "ext": "cjs,mjs,js,cts,mts,ts,json,prisma",
-  "exec": "node --loader ts-node/esm ./src/bin/www.ts",
+  "exec": "(pnpm turbo db:push --filter=database) && (node --loader ts-node/esm ./src/bin/www.ts)",
   "events": {
-    "start": "pnpm run typecheck && pnpm run lint",
-    "restart": "pnpm run typecheck && pnpm run lint"
+    "start": "pnpm turbo lint",
+    "restart": "pnpm turbo lint"
   }
 }

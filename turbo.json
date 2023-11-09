@@ -1,19 +1,28 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
-    "build": {
-      "dependsOn": ["^build"]
-    },
-    "lint": {
-      "dependsOn": ["^build"]
+    "dependencies": {
+      "dependsOn": ["^dependencies"]
     },
     "typecheck": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["dependencies"]
+    },
+    "lint": {
+      "dependsOn": ["typecheck"]
+    },
+    "db:push": {
+      "cache": false
+    },
+    "db:generate": {
+      "cache": false
     },
     "dev": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^db:generate"],
       "cache": false,
       "persistent": true
+    },
+    "build": {
+      "dependsOn": ["^build", "^db:generate"]
     },
     "clean": {
       "cache": false
