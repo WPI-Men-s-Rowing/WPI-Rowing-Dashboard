@@ -9,10 +9,8 @@
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "prepare": "husky install",
-    "db:migrate:deploy": "turbo run db:migrate:deploy",
-    "db:push": "turbo run db:push",
-    "db:seed": "turbo run db:seed",
-    "generate": "turbo run generate"
+    "db:push": "turbo db:push",
+    "db:generate": "turbo db:generate"
   },
   "devDependencies": {
     "eslint": "^8.45.0",
