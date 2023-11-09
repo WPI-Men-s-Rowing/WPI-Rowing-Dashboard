@@ -1,6 +1,6 @@
 module.exports = {
   extends: ["custom/node"],
   parserOptions: {
-    env: { es2020: true, node: false },
+    env: { node: false },
   },
 };
