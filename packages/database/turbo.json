@@ -5,6 +5,18 @@
     "db:format": {},
     "lint": {
       "dependsOn": ["db:format", "db:generate", "typecheck"]
+    },
+    "db:seed": {
+      "dotEnv": [".env.development.local"],
+      "env": ["NK_AUTH_TOKEN"]
+    },
+    "db:migrate:dev": {
+      "dotEnv": [".env.development.local"],
+      "env": ["NK_AUTH_TOKEN"]
+    },
+    "db:migrate:reset": {
+      "dotEnv": [".env.development.local"],
+      "env": ["NK_AUTH_TOKEN"]
     }
   }
 }
