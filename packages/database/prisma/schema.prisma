@@ -1,1 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
 
+generator zod {
+  provider = "zod-prisma-types"
+  output   = "../node_modules/.prisma/zod"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model NkCredential {
+  token String @id
+}
