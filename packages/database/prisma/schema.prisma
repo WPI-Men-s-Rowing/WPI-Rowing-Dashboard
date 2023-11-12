@@ -13,5 +13,9 @@ datasource db {
 }
 
 model NkCredential {
-  token String @id
+  userId       Int      @id
+  ownTeamId    Int
+  accessToken  String
+  refreshToken String
+  tokenExpiry  DateTime
 }

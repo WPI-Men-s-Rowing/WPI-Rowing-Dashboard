@@ -2,7 +2,7 @@ import cookieParser from "cookie-parser";
 import express, { Express, NextFunction, Request, Response } from "express";
 import createError, { HttpError } from "http-errors";
 import logger from "morgan";
-import numbersRouter from "./routes/numbers.ts";
+import nkAccountsRouter from "./routes/nk-accounts.ts";
 
 const app: Express = express(); // Setup the backend
 
@@ -29,7 +29,7 @@ app.use("/healthcheck", function (_req: Request, res: Response): void {
 
 // Setup routers. ALL ROUTERS MUST use /api as a start point, or they
 // won't be reached by the default proxy and prod setup
-app.use("/api/numbers", numbersRouter);
+app.use("/api/nk-accounts", nkAccountsRouter);
 
 /**
  * Catch all 404 errors, and forward them to the error handler
