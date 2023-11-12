@@ -1,3 +1,4 @@
+import "dotenv/config";
 import http from "http";
 import { createHttpTerminator } from "http-terminator";
 import { AddressInfo } from "net";

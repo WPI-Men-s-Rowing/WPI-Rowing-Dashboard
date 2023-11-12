@@ -37,12 +37,18 @@ importers:
       "@swc/helpers":
         specifier: ^0.5.3
         version: 0.5.3
+      axios:
+        specifier: ^1.6.1
+        version: 1.6.1
       common:
         specifier: workspace:*
         version: link:../../packages/common
       cookie-parser:
         specifier: ~1.4.4
         version: 1.4.6
+      database:
+        specifier: workspace:*
+        version: link:../../packages/database
       express:
         specifier: 5.0.0-beta.1
         version: 5.0.0-beta.1
@@ -72,8 +78,8 @@ importers:
         specifier: ^1.4.6
         version: 1.4.6
       "@types/express":
-        specifier: ^4.17.20
-        version: 4.17.20
+        specifier: ^4.17.21
+        version: 4.17.21
       "@types/http-errors":
         specifier: ^2.0.3
         version: 2.0.3
@@ -1225,7 +1231,7 @@ packages:
         integrity: sha512-KoooCrD56qlLskXPLGUiJxOMnv5l/8m7cQD2OxJ73NPMhuSz9PmvwRD6EpjDyKBVrdJDdQ4bQK7JFNHnNmax0w==,
       }
     dependencies:
-      "@types/express": 4.17.20
+      "@types/express": 4.17.21
     dev: true
 
   /@types/cross-spawn@6.0.3:
@@ -1293,10 +1299,10 @@ packages:
       "@types/send": 0.17.3
     dev: true
 
-  /@types/express@4.17.20:
+  /@types/express@4.17.21:
     resolution:
       {
-        integrity: sha512-rOaqlkgEvOW495xErXMsmyX3WKBInbhG5eqojXYi3cGUaLoRDlXa5d52fkfWZT963AZ3v2eZ4MbKE6WpDAGVsw==,
+        integrity: sha512-ejlPM315qwLpaQlQDTjPdsUFSc6ZsP4AN6AlWnogPjQ7CVi7PYF3YVz+CY3jE2pwYf7E/7HlDAN0rV2GxTG0HQ==,
       }
     dependencies:
       "@types/body-parser": 1.19.5
@@ -2009,6 +2015,13 @@ packages:
       has-symbols: 1.0.3
     dev: true
 
+  /asynckit@0.4.0:
+    resolution:
+      {
+        integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==,
+      }
+    dev: false
+
   /autoprefixer@10.4.16(postcss@8.4.31):
     resolution:
       {
@@ -2035,6 +2048,19 @@ packages:
       }
     engines: { node: ">= 0.4" }
     dev: true
+
+  /axios@1.6.1:
+    resolution:
+      {
+        integrity: sha512-vfBmhDpKafglh0EldBEbVuoe7DyAavGSLWhuSm5ZSEKQnHhBf0xAAwybbNH1IkrJNGnS/VG4I5yxig1pCEXE4g==,
+      }
+    dependencies:
+      follow-redirects: 1.15.3
+      form-data: 4.0.0
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
 
   /bail@2.0.2:
     resolution:
@@ -2397,6 +2423,16 @@ packages:
       }
     dev: true
 
+  /combined-stream@1.0.8:
+    resolution:
+      {
+        integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==,
+      }
+    engines: { node: ">= 0.8" }
+    dependencies:
+      delayed-stream: 1.0.0
+    dev: false
+
   /commander@11.1.0:
     resolution:
       {
@@ -2654,6 +2690,14 @@ packages:
         integrity: sha512-ReEBKkIfe4ya47wlPYf/gu5ib6yUG0/Aez0JQZQz94kiWtRQvZIQbTiehsnwHvLSWJnQdhVeqYue7Id1dKr0qw==,
       }
     engines: { node: ">=10" }
+    dev: false
+
+  /delayed-stream@1.0.0:
+    resolution:
+      {
+        integrity: sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==,
+      }
+    engines: { node: ">=0.4.0" }
     dev: false
 
   /depd@1.1.2:
@@ -3620,6 +3664,19 @@ packages:
       }
     dev: true
 
+  /follow-redirects@1.15.3:
+    resolution:
+      {
+        integrity: sha512-1VzOtuEM8pC9SFU1E+8KfTjZyMztRsgEfwQl44z8A25uy13jSzTj6dyK2Df52iV0vgHCfBwLhDWevLn95w5v6Q==,
+      }
+    engines: { node: ">=4.0" }
+    peerDependencies:
+      debug: "*"
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    dev: false
+
   /for-each@0.3.3:
     resolution:
       {
@@ -3639,6 +3696,18 @@ packages:
       cross-spawn: 7.0.3
       signal-exit: 4.1.0
     dev: true
+
+  /form-data@4.0.0:
+    resolution:
+      {
+        integrity: sha512-ETEklSGi5t0QMZuiXoA/Q6vcnxcLQP5vdugSpuAyi6SVGi2clPPp+xgEhuMaHC+zGgn31Kd235W35f7Hykkaww==,
+      }
+    engines: { node: ">= 6" }
+    dependencies:
+      asynckit: 0.4.0
+      combined-stream: 1.0.8
+      mime-types: 2.1.35
+    dev: false
 
   /format@0.2.2:
     resolution:
@@ -6376,6 +6445,13 @@ packages:
     dependencies:
       forwarded: 0.2.0
       ipaddr.js: 1.9.1
+    dev: false
+
+  /proxy-from-env@1.1.0:
+    resolution:
+      {
+        integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==,
+      }
     dev: false
 
   /pstree.remy@1.1.8:

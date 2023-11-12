@@ -8,15 +8,23 @@
     },
     "db:seed": {
       "dotEnv": [".env.development.local"],
-      "env": ["NK_AUTH_TOKEN"]
+      "env": ["NK_AUTH_TOKEN", "DATABASE_URL"]
     },
     "db:migrate:dev": {
       "dotEnv": [".env.development.local"],
-      "env": ["NK_AUTH_TOKEN"]
+      "env": ["NK_AUTH_TOKEN", "DATABASE_URL"]
     },
     "db:migrate:reset": {
       "dotEnv": [".env.development.local"],
-      "env": ["NK_AUTH_TOKEN"]
+      "env": ["NK_AUTH_TOKEN", "DATABASE_URL"]
+    },
+    "db:push": {
+      "dotEnv": [".env.development.local"],
+      "env": ["DATABASE_URL"]
+    },
+    "dev": {
+      "dotEnv": [".env.development.local"],
+      "env": ["POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB"]
     }
   }
 }

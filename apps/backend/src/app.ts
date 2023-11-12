@@ -23,7 +23,7 @@ app.use(cookieParser()); // Cookie parser
 // (e.g., Docker and the dev proxy DO NOT expose this). It exists exclusively so that can check the server
 // is alive/responsive. If this returns anything other than 200, Docker will automatically kill your backend
 // (under the assumption that something has gone horribly wrong). This must come before the authentication endpoint
-app.use("/healthcheck", function (req: Request, res: Response): void {
+app.use("/healthcheck", function (_req: Request, res: Response): void {
   res.sendStatus(200);
 });
 
@@ -34,7 +34,7 @@ app.use("/api/numbers", numbersRouter);
 /**
  * Catch all 404 errors, and forward them to the error handler
  */
-app.use(function (req: Request, res: Response, next: NextFunction): void {
+app.use(function (_req: Request, _res: Response, next: NextFunction): void {
   // Have the next (generic error handler) process a 404 error
   next(createError(404));
 });
@@ -42,7 +42,7 @@ app.use(function (req: Request, res: Response, next: NextFunction): void {
 /**
  * Generic error handler
  */
-app.use((err: HttpError, req: Request, res: Response): void => {
+app.use(function (err: HttpError, req: Request, res: Response): void {
   res.statusMessage = err.message; // Provide the error message
 
   res.locals.error = req.app.get("env") === "development" ? err : {};

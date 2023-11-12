@@ -11,7 +11,7 @@
     "src/**"
   ],
   "scripts": {
-    "dev": "docker run -d postgres:latest -p 5432:5432 --env-file .env.development.local",
+    "dev": "docker run -p 5432:5432 --env-file ./.env.development.local -e PGDATA=/var/lib/postgresql/data/pgdata --volume wpi-rowing-dash-dev-db-data:/var/lib/postgresql/data postgres:latest",
     "db:format": "prisma format",
     "db:push": "prisma db push --skip-generate",
     "db:migrate:dev": "prisma migrate dev",

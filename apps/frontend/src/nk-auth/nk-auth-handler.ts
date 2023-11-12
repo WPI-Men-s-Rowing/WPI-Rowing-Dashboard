@@ -25,7 +25,7 @@ export function handleNkLoginRequest(state: Record<string, unknown>): void {
   const urlParams = new URLSearchParams({
     response_type: "code",
     // Look in the env file for the client id
-    client_id: "logbook-visualizer",
+    client_id: import.meta.env.VITE_NK_CLIENT_ID as string,
     redirect_uri: window.location.origin + NkAuthRedirectPath,
     scope: "read",
     state: id,
