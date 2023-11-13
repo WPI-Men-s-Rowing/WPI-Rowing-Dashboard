@@ -5,7 +5,7 @@ import { AddressInfo } from "net";
 import app from "../app.ts";
 
 // Get port from environment and store in Express
-const port: string | undefined = "3001";
+const port = "3001";
 
 app.set("port", port);
 
@@ -71,8 +71,7 @@ function onError(error: NodeJS.ErrnoException): void {
   }
 
   // Get the pipe/port we're listening on
-  const bind: string =
-    typeof port === "string" ? "Pipe " + port : "Port " + port;
+  const bind: string = "Port " + port;
 
   // Handle specific listen errors with friendly messages
   switch (error.code) {

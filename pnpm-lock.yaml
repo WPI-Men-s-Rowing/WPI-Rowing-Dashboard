@@ -104,6 +104,9 @@ importers:
 
   apps/frontend:
     dependencies:
+      axios:
+        specifier: ^1.6.1
+        version: 1.6.1
       common:
         specifier: workspace:*
         version: link:../../packages/common

@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios";
-import { addAuthCodeRequest } from "common";
+import { PostAuthCodes } from "common";
 import { prisma } from "database";
 import express, { Request, Response, Router } from "express";
 
@@ -39,7 +39,7 @@ router.post(
 
     try {
       // Validate the input
-      request = addAuthCodeRequest.parse(req.body);
+      request = PostAuthCodes.parse(req.body);
     } catch (error) {
       res.status(400).send("Invalid request body");
       return;

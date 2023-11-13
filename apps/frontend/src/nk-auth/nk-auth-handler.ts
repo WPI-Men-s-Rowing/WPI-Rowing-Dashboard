@@ -72,11 +72,12 @@ export function handleNkLoginReturn(): IRedirectReturn {
   // Now parse the body into JSON
   const stateBody = JSON.parse(stateBodyString) as IRedirectData;
 
-  // Validate the attempt hasn't expired
-  if (stateBody.expiresOn > Date.now()) {
-    throw new Error("Redirect attempt expired!");
+  // Validate the attempt has expired
+  if (stateBody.expiresOn < Date.now()) {
+    throw new Error("Redirect attempt expired!"); // Notify that something went wrong
   }
 
+  // Return the data
   return { state: stateBody.state, code: code } satisfies IRedirectReturn;
 }
 
