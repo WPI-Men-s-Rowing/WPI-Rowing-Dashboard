@@ -17,12 +17,12 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 
           // Post the auth code
           type PostAuthCodeType = z.infer<typeof PostAuthCodes>;
-          void axios.post<PostAuthCodeType, AxiosResponse<void>>(
-            "/api/nk-accounts/auth-codes",
-            {
-              code: code,
-            } satisfies PostAuthCodeType,
-          );
+          void axios.post<
+            PostAuthCodeType,
+            AxiosResponse<Record<string, never>>
+          >("/api/nk-accounts/auth-codes", {
+            code: code,
+          } satisfies PostAuthCodeType);
         }}
         redirectError={() => {
           console.log("error");
