@@ -4,8 +4,9 @@ import { createHttpTerminator } from "http-terminator";
 import { AddressInfo } from "net";
 import app from "../app.ts";
 
-// Get port from environment and store in Express
-const port = "3001";
+// Get port from environment and store in Express. If there's no port (e.g., dev), default to 3001
+// eslint-disable-next-line turbo/no-undeclared-env-vars
+const port = process.env.PORT ?? 3001;
 
 app.set("port", port);
 
