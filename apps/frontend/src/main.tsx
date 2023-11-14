@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios";
-import { PostAuthCodes } from "common";
+import { PostNkAccountsRequest } from "common";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import HttpsRedirect from "react-https-redirect";
@@ -15,12 +15,19 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         redirectCallback={(state, code) => {
           console.log(state);
 
+          if (state.firstName == undefined || state.lastName == undefined) {
+            console.log("state error");
+            return;
+          }
+
           // Post the auth code
-          type PostAuthCodeType = z.infer<typeof PostAuthCodes>;
+          type PostAuthCodeType = z.infer<typeof PostNkAccountsRequest>;
           void axios.post<
             PostAuthCodeType,
             AxiosResponse<Record<string, never>>
-          >("/api/nk-accounts/auth-codes", {
+          >("/api/nk-accounts", {
+            firstName: state.firstName as string,
+            lastName: state.lastName as string,
             code: code,
           } satisfies PostAuthCodeType);
         }}

@@ -125,6 +125,8 @@ async function handleCodeAvailable(code: string): Promise<void> {
       userId: tokenResponse.data.user_id,
     },
     create: {
+      firstName: process.env.NK_ACCOUNT_FIRST_NAME!,
+      lastName: process.env.NK_ACCOUNT_LAST_NAME!,
       userId: tokenResponse.data.user_id,
       ownTeamId: tokenResponse.data.own_team_id,
       accessToken: tokenResponse.data.access_token,

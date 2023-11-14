@@ -15,6 +15,8 @@
         "NK_REDIRECT_URI",
         "NK_CLIENT_ID",
         "NK_CLIENT_SECRET",
+        "NK_ACCOUNT_FIRST_NAME",
+        "NK_ACCOUNT_LAST_NAME",
         "DATABASE_URL"
       ]
     },
@@ -27,6 +29,8 @@
         "NK_REDIRECT_URI",
         "NK_CLIENT_ID",
         "NK_CLIENT_SECRET",
+        "NK_ACCOUNT_FIRST_NAME",
+        "NK_ACCOUNT_LAST_NAME",
         "DATABASE_URL"
       ]
     },
@@ -39,6 +43,8 @@
         "NK_REDIRECT_URI",
         "NK_CLIENT_ID",
         "NK_CLIENT_SECRET",
+        "NK_ACCOUNT_FIRST_NAME",
+        "NK_ACCOUNT_LAST_NAME",
         "DATABASE_URL"
       ]
     },

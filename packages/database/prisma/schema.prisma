@@ -13,6 +13,8 @@ datasource db {
 }
 
 model NkCredential {
+  firstName    String
+  lastName     String
   userId       Int      @id
   ownTeamId    Int
   accessToken  String

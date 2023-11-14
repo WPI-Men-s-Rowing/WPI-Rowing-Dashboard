@@ -1,7 +1,15 @@
 import axios, { AxiosResponse } from "axios";
-import { PostAuthCodes } from "common";
-import { prisma } from "database";
+import {
+  GetNkAccountsByIdResponse,
+  GetNkAccountsResponse,
+  PatchNkAccountsByIdRequest,
+  PatchNkAccountsByIdResponse,
+  PostNkAccountsRequest,
+  PostNkAccountsResponse,
+} from "common";
+import { NkCredential, prisma } from "database";
 import express, { Request, Response, Router } from "express";
+import { z } from "zod";
 
 const router: Router = express.Router();
 
@@ -30,16 +38,176 @@ interface ITokenResponse {
   expires_in: number; // Time (in seconds) until token expiry
 }
 
+// Again, using express 4 with express 5 types =(
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+router.get("/", async function (_: Request, res: Response): Promise<void> {
+  // Get all NK Accounts
+  const accounts = await prisma.nkCredential.findMany();
+
+  // Now map the accounts into the expected types and return the account data
+  res.status(200).send({
+    accounts: accounts.map((account) => {
+      return {
+        firstName: account.firstName,
+        lastName: account.lastName,
+        userId: account.userId,
+        ownTeamId: account.ownTeamId,
+      } satisfies GetNkAccountsByIdResponse;
+    }),
+  } satisfies GetNkAccountsResponse);
+});
+
+// Again, using express 4 with express 5 types. Gets a single NK account by ID
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+router.get("/:id", async function (req: Request, res: Response): Promise<void> {
+  // Validate the ID is there
+  if (req.params.id == undefined) {
+    res.status(400).send("Missing required parameter ID");
+    return;
+  }
+
+  // Now parse the ID to ensure it is a number
+  let parsedId: number;
+  try {
+    parsedId = parseInt(req.params.id);
+  } catch (error) {
+    res.status(400).send("Invalid account ID (account IDs must be integers!)");
+    return;
+  }
+
+  // Now get the account at that ID
+  const account = await prisma.nkCredential.findUnique({
+    where: {
+      userId: parsedId,
+    },
+  });
+
+  // Validate the account exists
+  if (account == null) {
+    res.status(400).send("Invalid account ID (account ID does not exist!");
+    return;
+  }
+
+  // Now that we've validated everything, send all the data
+  res.status(200).send({
+    firstName: account.firstName,
+    lastName: account.lastName,
+    userId: account.userId,
+    ownTeamId: account.ownTeamId,
+  } satisfies GetNkAccountsByIdResponse);
+});
+
+// Deletes a single NK account by ID
+router.delete(
+  "/:id",
+  // Again, using express 4 with express 5 types
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  async function (req: Request, res: Response): Promise<void> {
+    // Validate the ID is there
+    if (req.params.id == undefined) {
+      res.status(400).send("Missing required parameter ID");
+      return;
+    }
+
+    // Now parse the ID to ensure it is a number
+    let parsedId: number;
+    try {
+      parsedId = parseInt(req.params.id);
+    } catch (error) {
+      res
+        .status(400)
+        .send("Invalid account ID (account IDs must be integers!)");
+      return;
+    }
+
+    // Now delete the account at that ID. Easy enough to do it this way so we don't throw or anything if it fails
+    const deletedInfo = await prisma.nkCredential.deleteMany({
+      where: {
+        userId: parsedId,
+      },
+    });
+
+    if (deletedInfo.count == 0) {
+      // If the account didn't exist (no updated rows) send error
+      res.status(409).send("Invalid account ID (account ID does not exist!");
+      return;
+    } else {
+      // Otherwise, send OK
+      res.sendStatus(200);
+    }
+  },
+);
+
+// Updates a single NK account by ID
+router.patch(
+  "/:id",
+  // Again, using express 4 with express 5 types
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  async function (req: Request, res: Response): Promise<void> {
+    // Validate the ID is there
+    if (req.params.id == undefined) {
+      res.status(400).send("Missing required parameter ID");
+      return;
+    }
+
+    // Now parse the ID to ensure it is a number
+    let parsedId: number;
+    try {
+      parsedId = parseInt(req.params.id);
+    } catch (error) {
+      res
+        .status(400)
+        .send("Invalid account ID (account IDs must be integers!)");
+      return;
+    }
+
+    let request: z.infer<typeof PatchNkAccountsByIdRequest>; // Request
+    try {
+      // Validate the input
+      request = PatchNkAccountsByIdRequest.parse(req.body);
+    } catch (error) {
+      res.status(400).send("Invalid request body");
+      return;
+    }
+
+    let updatedUser: NkCredential;
+    // Now update the account at that ID
+    try {
+      updatedUser = await prisma.nkCredential.update({
+        where: {
+          userId: parsedId,
+        },
+        data: {
+          firstName: request.firstName,
+          lastName: request.lastName,
+        },
+      });
+    } catch (error) {
+      // If the account didn't exist (no updated rows) send error
+      res.status(409).send("Invalid account ID (account ID does not exist!");
+      return;
+    }
+
+    // Otherwise, send OK and the actual user back
+    res.status(200).send({
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      userId: updatedUser.userId,
+      ownTeamId: updatedUser.ownTeamId,
+    } satisfies PatchNkAccountsByIdResponse);
+  },
+);
+
+// Endpoint to add an account
 router.post(
-  "/auth-codes",
+  "/",
   // Since we're using Express 4 types with Express 5 this happens :(
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   async function (req: Request, res: Response): Promise<void> {
-    let request: { code: string }; // Request
-
+    let request: z.infer<typeof PostNkAccountsRequest>; // Request
     try {
       // Validate the input
-      request = PostAuthCodes.parse(req.body);
+      request = PostNkAccountsRequest.parse(req.body);
     } catch (error) {
       res.status(400).send("Invalid request body");
       return;
@@ -84,8 +252,10 @@ router.post(
     }
 
     // Await creating the credential, calculate the expirey
-    await prisma.nkCredential.create({
+    const createdAccount = await prisma.nkCredential.create({
       data: {
+        firstName: request.firstName,
+        lastName: request.lastName,
         userId: result.data.user_id,
         ownTeamId: result.data.own_team_id,
         accessToken: result.data.access_token,
@@ -95,7 +265,12 @@ router.post(
     });
 
     // If all went, well acknowledge that
-    res.sendStatus(200);
+    res.status(200).send({
+      firstName: createdAccount.firstName,
+      lastName: createdAccount.lastName,
+      userId: createdAccount.userId,
+      ownTeamId: createdAccount.ownTeamId,
+    } satisfies PostNkAccountsResponse);
   },
 );
 
