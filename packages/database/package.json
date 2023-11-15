@@ -14,8 +14,6 @@
     "dev": "docker run -p 5432:5432 --env-file ./.env.development.local -e PGDATA=/var/lib/postgresql/data/pgdata --volume wpi-rowing-dash-db:/var/lib/postgresql/data postgres:latest",
     "db:format": "prisma format",
     "db:push": "dotenv -e .env.development.local -- prisma db push --skip-generate",
-    "db:migrate:dev": "dotenv -e .env.development.local -- prisma migrate dev",
-    "db:migrate:reset": "dotenv -e .env.development.local -- prisma migrate reset",
     "db:generate": "prisma generate",
     "db:seed": "dotenv -e .env.development.local -- prisma db seed",
     "typecheck": "tsc",

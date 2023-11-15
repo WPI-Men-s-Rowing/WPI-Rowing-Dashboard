@@ -20,34 +20,6 @@
         "DATABASE_URL"
       ]
     },
-    "db:migrate:dev": {
-      "dotEnv": [".env.development.local"],
-      "env": [
-        "NK_AUTH_DEVICE_ID",
-        "NK_AUTH_EMAIL",
-        "NK_AUTH_PASSWORD",
-        "NK_REDIRECT_URI",
-        "NK_CLIENT_ID",
-        "NK_CLIENT_SECRET",
-        "NK_ACCOUNT_FIRST_NAME",
-        "NK_ACCOUNT_LAST_NAME",
-        "DATABASE_URL"
-      ]
-    },
-    "db:migrate:reset": {
-      "dotEnv": [".env.development.local"],
-      "env": [
-        "NK_AUTH_DEVICE_ID",
-        "NK_AUTH_EMAIL",
-        "NK_AUTH_PASSWORD",
-        "NK_REDIRECT_URI",
-        "NK_CLIENT_ID",
-        "NK_CLIENT_SECRET",
-        "NK_ACCOUNT_FIRST_NAME",
-        "NK_ACCOUNT_LAST_NAME",
-        "DATABASE_URL"
-      ]
-    },
     "db:push": {
       "dotEnv": [".env.development.local"],
       "env": ["DATABASE_URL"]

@@ -89,6 +89,12 @@ importers:
       "@types/node":
         specifier: ^20.2.3
         version: 20.8.10
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.3.1
+      dotenv-cli:
+        specifier: ^7.3.0
+        version: 7.3.0
       eslint-config-custom:
         specifier: workspace:*
         version: link:../../packages/eslint-config-custom

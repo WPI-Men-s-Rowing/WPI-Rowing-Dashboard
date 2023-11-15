@@ -1,8 +1,22 @@
-import "dotenv/config";
 import http from "http";
 import { createHttpTerminator } from "http-terminator";
 import { AddressInfo } from "net";
 import app from "../app.ts";
+
+// Attempt a database connection
+console.info("Connecting to database...");
+try {
+  // This intrinsically connects to the database
+  import("database");
+  console.log("Successfully connected to the database");
+} catch (error) {
+  // Log any errors
+  const printableError = error as Error;
+  console.error(
+    "Unable to establish database connection: " + printableError.message,
+  );
+  process.exit(1); // Then exit
+}
 
 // Get port from environment and store in Express. If there's no port (e.g., dev), default to 3001
 // eslint-disable-next-line turbo/no-undeclared-env-vars

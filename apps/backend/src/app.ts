@@ -1,3 +1,4 @@
+import { IErrorResponse } from "common";
 import cookieParser from "cookie-parser";
 import express, { Express, NextFunction, Request, Response } from "express";
 import createError, { HttpError } from "http-errors";
@@ -42,13 +43,11 @@ app.use(function (_req: Request, _res: Response, next: NextFunction): void {
 /**
  * Generic error handler
  */
-app.use(function (err: HttpError, req: Request, res: Response): void {
-  res.statusMessage = err.message; // Provide the error message
-
-  res.locals.error = req.app.get("env") === "development" ? err : {};
-
+app.use(function (err: HttpError, _: Request, res: Response): void {
   // Reply with the error
-  res.status(err.status || 500);
+  res
+    .status(err.status || 500)
+    .send({ message: err.message } satisfies IErrorResponse);
 });
 
 export default app; // Export the backend, so that www.ts can start it

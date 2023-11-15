@@ -1,6 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 import axios, { AxiosResponse } from "axios";
-import "dotenv/config";
 import * as process from "process";
 import puppeteer from "puppeteer";
 import { URLSearchParams } from "url";

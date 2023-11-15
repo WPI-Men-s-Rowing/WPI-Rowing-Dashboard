@@ -16,7 +16,7 @@ export const PostNkAccountsRequest = z
  * This extends the get nk account by ID response
  * (as this is what that is)
  */
-export type PostNkAccountsResponse = GetNkAccountsByIdResponse;
+export type IPostNkAccountsResponse = IGetNkAccountsByIdResponse;
 
 /**
  * Type to be used to update an NK account (request). Does not contain ID,
@@ -33,12 +33,12 @@ export const PatchNkAccountsByIdRequest = z
  * Type to be returned by a successful patch NK accounts request.
  * This extends the get nk
  */
-export type PatchNkAccountsByIdResponse = GetNkAccountsByIdResponse;
+export type IPatchNkAccountsByIdResponse = IGetNkAccountsByIdResponse;
 
 /**
  * The returned type of getting an individual NK Account by ID
  */
-export interface GetNkAccountsByIdResponse {
+export interface IGetNkAccountsByIdResponse {
   firstName: string;
   lastName: string;
   userId: number;
@@ -48,6 +48,8 @@ export interface GetNkAccountsByIdResponse {
 /**
  * The returned type of getting all NK Accounts
  */
-export interface GetNkAccountsResponse {
-  accounts: GetNkAccountsByIdResponse[];
+export interface IGetNkAccountsResponse {
+  accounts: IGetNkAccountsByIdResponse[];
 }
+
+export * from "./nk-accounts-data.ts";
