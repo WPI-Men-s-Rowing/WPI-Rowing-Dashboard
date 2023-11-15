@@ -1,7 +1,7 @@
-// URL base for all sessions requests
 import axios from "axios";
 import { URLSearchParams } from "url";
 
+// URL base for all sessions requests
 const SESSIONS_URL_BASE = "http://logbook-api.nksports.com/api/v1";
 
 /**
