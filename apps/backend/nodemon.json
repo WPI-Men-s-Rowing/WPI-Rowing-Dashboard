@@ -1,7 +1,7 @@
 {
   "watch": ["../../packages", "./"],
   "ext": "cjs,mjs,js,cts,mts,ts,json,prisma",
-  "exec": "(pnpm turbo db:generate --filter=database) && (node --loader ts-node/esm ./src/bin/www.ts)",
+  "exec": "(pnpm turbo db:generate --filter=database) && (node --loader ts-node/esm --inspect ./src/bin/www.ts)",
   "events": {
     "start": "pnpm turbo lint"
   }

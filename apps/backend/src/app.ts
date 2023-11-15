@@ -5,7 +5,7 @@ import createError, { HttpError } from "http-errors";
 import logger from "morgan";
 import nkAccountsRouter from "./routes/nk-accounts.ts";
 
-const app: Express = express(); // Setup the backend
+const app: Express = express(); // Set up the backend
 
 // Setup generic middleware
 app.use(
@@ -43,11 +43,25 @@ app.use(function (_req: Request, _res: Response, next: NextFunction): void {
 /**
  * Generic error handler
  */
-app.use(function (err: HttpError, _: Request, res: Response): void {
+app.use(function (
+  err: HttpError,
+  _req: Request,
+  res: Response,
+  // To be an error handler, we need a next function (because who knows).
+  // So we need to suppress this error
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _next: NextFunction,
+): void {
   // Reply with the error
   res
     .status(err.status || 500)
-    .send({ message: err.message } satisfies IErrorResponse);
+    // Try putting on the stack trace if we're not in prod and have one. Otherwise, default to message
+    .send({
+      message:
+        process.env.NODE_ENV != "production" && err.stack
+          ? err.stack
+          : err.message,
+    } satisfies IErrorResponse);
 });
 
 export default app; // Export the backend, so that www.ts can start it

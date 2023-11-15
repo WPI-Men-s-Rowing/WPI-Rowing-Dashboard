@@ -1,4 +1,3 @@
-import axios, { AxiosResponse } from "axios";
 import {
   IErrorResponse,
   IGetNkAccountsByIdResponse,
@@ -11,38 +10,14 @@ import {
 import { NkCredential, prisma } from "database";
 import express, { Request, Response, Router } from "express";
 import { z } from "zod";
-import { validateHasId } from "../middleware/validateHasId.js";
+import { IRequestWithId, validateHasId } from "../middleware/validateHasId.js";
+import { ITokenResponse, handleCodeExchange } from "../nk/oauth.js";
 import nkAccountsDataRouter from "./nk-accounts-data.ts";
 
 // Router that acts as an entry point to all NK data.
 // This includes pathing
 // to data, but this file contains only account management information
 const router: Router = express.Router();
-
-/**
- * Interface that describes what should be sent in the body to the Token OAuth
- * endpoint
- */
-interface ITokenRequest {
-  code: string; // OAuth code
-  grant_type: "authorization_code"; // Required, since we're using auth code grant
-  redirect_uri: string; // Redirect URI, required
-  code_challenge?: string; // Optional code challenge if the code was generated with PKCE
-}
-
-/**
- * Interface that describes what should be sent inthe response to the Token OAuth endpoint
- */
-interface ITokenResponse {
-  access_token: string; // Access token
-  refresh_token: string; // Refresh token
-  token_type: string; // Token type (bearer)
-  scope: string; // Scopes the token has
-  user_id: number; // UserID of the user the token is for
-  own_team_id: number; // TeamID of the user the token is for
-  jti: string; // JSON Token ID (useless?)
-  expires_in: number; // Time (in seconds) until token expiry
-}
 
 router
   .route("/:id")
@@ -51,13 +26,10 @@ router
     // Again, using express 4 with express 5 types. Gets a single NK account by ID
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     async function (req: Request, res: Response): Promise<void> {
-      // Get the ID. We know this is safe because of the middleware
-      const userId = parseInt(req.params.id);
-
       // Now get the account at that ID
       const account = await prisma.nkCredential.findUnique({
         where: {
-          userId: userId,
+          userId: (req as IRequestWithId)._id,
         },
       });
 
@@ -84,13 +56,10 @@ router
     // Again, using express 4 with express 5 types
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     async function (req: Request, res: Response): Promise<void> {
-      // Get the ID. This is safe because of the middleware
-      const userId = parseInt(req.params.id);
-
       // Now delete the account at that ID. Easy enough to do it this way so we don't throw or anything if it fails
       const deletedInfo = await prisma.nkCredential.deleteMany({
         where: {
-          userId: userId,
+          userId: (req as IRequestWithId)._id,
         },
       });
 
@@ -114,9 +83,6 @@ router.patch(
   // Again, using express 4 with express 5 types
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   async function (req: Request, res: Response): Promise<void> {
-    // Get the ID. This is safe because of the middleware
-    const userId = parseInt(req.params.id);
-
     let request: z.infer<typeof PatchNkAccountsByIdRequest>; // Request
     try {
       // Validate the input
@@ -133,7 +99,7 @@ router.patch(
     try {
       updatedUser = await prisma.nkCredential.update({
         where: {
-          userId: userId,
+          userId: (req as IRequestWithId)._id,
         },
         data: {
           firstName: request.firstName,
@@ -195,26 +161,11 @@ router
         return;
       }
 
-      let result: AxiosResponse<ITokenResponse, ITokenRequest>;
+      let result: ITokenResponse;
 
       // Now make the authorization request, putting hte code and grant in the URL, and the auth in the header
       try {
-        result = await axios.post(
-          "https://oauth-logbook.nksports.com/oauth/token",
-          {
-            code: request.code,
-            grant_type: "authorization_code",
-            redirect_uri: process.env.NK_REDIRECT_URI!,
-          } satisfies ITokenRequest,
-          {
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-              Authorization: `Basic ${Buffer.from(
-                `${process.env.NK_CLIENT_ID}:${process.env.NK_CLIENT_SECRET}`,
-              ).toString("base64")}`,
-            },
-          },
-        );
+        result = await handleCodeExchange(request.code);
       } catch (error) {
         res.status(400).send({
           message: "Invalid authorization code",
@@ -225,7 +176,7 @@ router
       // Test to see if the user already exists
       const alreadyExistingUser = await prisma.nkCredential.findUnique({
         where: {
-          userId: result.data.user_id,
+          userId: result.user_id,
         },
       });
 
@@ -242,11 +193,11 @@ router
         data: {
           firstName: request.firstName,
           lastName: request.lastName,
-          userId: result.data.user_id,
-          ownTeamId: result.data.own_team_id,
-          accessToken: result.data.access_token,
-          refreshToken: result.data.refresh_token,
-          tokenExpiry: new Date(Date.now() + result.data.expires_in * 1000),
+          userId: result.user_id,
+          ownTeamId: result.own_team_id,
+          accessToken: result.access_token,
+          refreshToken: result.refresh_token,
+          tokenExpiry: new Date(Date.now() + result.expires_in * 1000),
         },
       });
 
