@@ -31,6 +31,9 @@ importers:
 
   apps/backend:
     dependencies:
+      "@godaddy/terminus":
+        specifier: ^4.12.1
+        version: 4.12.1
       "@swc/core":
         specifier: ^1.3.96
         version: 1.3.96(@swc/helpers@0.5.3)
@@ -55,18 +58,21 @@ importers:
       express-oauth2-jwt-bearer:
         specifier: ^1.5.0
         version: 1.6.0
+      helmet:
+        specifier: ^7.1.0
+        version: 7.1.0
       http-errors:
         specifier: ~1.6.3
         version: 1.6.3
-      http-terminator:
-        specifier: ^3.2.0
-        version: 3.2.0
       jose:
         specifier: ^4.14.4
         version: 4.15.4
       morgan:
         specifier: ~1.9.1
         version: 1.9.1
+      rate-limiter-flexible:
+        specifier: ^3.0.4
+        version: 3.0.4
       ts-node:
         specifier: ^10.9.1
         version: 10.9.1(@swc/core@1.3.96)(@types/node@20.8.10)(typescript@5.2.2)
@@ -684,6 +690,15 @@ packages:
       }
     engines: { node: ^12.22.0 || ^14.17.0 || >=16.0.0 }
     dev: true
+
+  /@godaddy/terminus@4.12.1:
+    resolution:
+      {
+        integrity: sha512-Tm+wVu1/V37uZXcT7xOhzdpFoovQReErff8x3y82k6YyWa1gzxWBjTyrx4G2enjEqoXPnUUmJ3MOmwH+TiP6Sw==,
+      }
+    dependencies:
+      stoppable: 1.1.0
+    dev: false
 
   /@humanwhocodes/config-array@0.11.13:
     resolution:
@@ -2220,13 +2235,6 @@ packages:
       - supports-color
     dev: false
 
-  /boolean@3.2.0:
-    resolution:
-      {
-        integrity: sha512-d0II/GO9uf9lfUHH2BQsjxzRJZBdsjgsBiW4BvhWk/3qoKwQFjIDVN19PfX8F2D/r9PCMTtLWjYVCFrpeYUzsw==,
-      }
-    dev: false
-
   /bplist-parser@0.2.0:
     resolution:
       {
@@ -2871,14 +2879,6 @@ packages:
       escodegen: 2.1.0
       esprima: 4.0.1
     dev: true
-
-  /delay@5.0.0:
-    resolution:
-      {
-        integrity: sha512-ReEBKkIfe4ya47wlPYf/gu5ib6yUG0/Aez0JQZQz94kiWtRQvZIQbTiehsnwHvLSWJnQdhVeqYue7Id1dKr0qw==,
-      }
-    engines: { node: ">=10" }
-    dev: false
 
   /delayed-stream@1.0.0:
     resolution:
@@ -3840,16 +3840,6 @@ packages:
       }
     dev: true
 
-  /fast-printf@1.6.9:
-    resolution:
-      {
-        integrity: sha512-FChq8hbz65WMj4rstcQsFB0O7Cy++nmbNfLYnD9cYv2cRn8EG6k/MGn9kO/tjO66t09DLDugj3yL+V2o6Qftrg==,
-      }
-    engines: { node: ">=10.0" }
-    dependencies:
-      boolean: 3.2.0
-    dev: false
-
   /fastq@1.15.0:
     resolution:
       {
@@ -4371,6 +4361,14 @@ packages:
       function-bind: 1.1.2
     dev: true
 
+  /helmet@7.1.0:
+    resolution:
+      {
+        integrity: sha512-g+HZqgfbpXdCkme/Cd/mZkV0aV3BZZZSugecH03kl38m/Kmdx8jKjBikpDj2cr+Iynv4KpYEviojNdTJActJAg==,
+      }
+    engines: { node: ">=16.0.0" }
+    dev: false
+
   /http-errors@1.6.3:
     resolution:
       {
@@ -4410,19 +4408,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
-
-  /http-terminator@3.2.0:
-    resolution:
-      {
-        integrity: sha512-JLjck1EzPaWjsmIf8bziM3p9fgR1Y3JoUKAkyYEbZmFrIvJM6I8vVJfBGWlEtV9IWOvzNnaTtjuwZeBY2kwB4g==,
-      }
-    engines: { node: ">=14" }
-    dependencies:
-      delay: 5.0.0
-      p-wait-for: 3.2.0
-      roarr: 7.18.3
-      type-fest: 2.19.0
-    dev: false
 
   /https-proxy-agent@7.0.2:
     resolution:
@@ -6403,14 +6388,6 @@ packages:
       type-check: 0.4.0
     dev: true
 
-  /p-finally@1.0.0:
-    resolution:
-      {
-        integrity: sha512-LICb2p9CB7FS+0eR1oqWnHhp0FljGLZCWBE9aix0Uye9W8LTQPwMTYVGWQWIw9RdQiDg4+epXQODwIYJtSJaow==,
-      }
-    engines: { node: ">=4" }
-    dev: false
-
   /p-limit@3.1.0:
     resolution:
       {
@@ -6430,26 +6407,6 @@ packages:
     dependencies:
       p-limit: 3.1.0
     dev: true
-
-  /p-timeout@3.2.0:
-    resolution:
-      {
-        integrity: sha512-rhIwUycgwwKcP9yTOOFK/AKsAopjjCakVqLHePO3CC6Mir1Z99xT+R63jZxAT5lFZLa2inS5h+ZS2GvR99/FBg==,
-      }
-    engines: { node: ">=8" }
-    dependencies:
-      p-finally: 1.0.0
-    dev: false
-
-  /p-wait-for@3.2.0:
-    resolution:
-      {
-        integrity: sha512-wpgERjNkLrBiFmkMEjuZJEWKKDrNfHCKA1OhyN1wg1FrLkULbviEy6py1AyJUgZ72YWFbZ38FIpnqvVqAlDUwA==,
-      }
-    engines: { node: ">=8" }
-    dependencies:
-      p-timeout: 3.2.0
-    dev: false
 
   /pac-proxy-agent@7.0.1:
     resolution:
@@ -7053,6 +7010,13 @@ packages:
     engines: { node: ">= 0.6" }
     dev: false
 
+  /rate-limiter-flexible@3.0.4:
+    resolution:
+      {
+        integrity: sha512-LFrdT9Pl/TRxG143frHBPyESXHvS2tstLfAUM6shBbJ3M6YssT2cIUWFwAWVAU9Vl4Z2gUN7ZE7tSdQh/0aqcA==,
+      }
+    dev: false
+
   /raw-body@2.4.2:
     resolution:
       {
@@ -7356,18 +7320,6 @@ packages:
       glob: 7.2.3
     dev: true
 
-  /roarr@7.18.3:
-    resolution:
-      {
-        integrity: sha512-1oGYrNJ7IE+vD7i6nC7cuMBq6poy7FmbcRUHDDiSMD7VH/KpQmvVy+WJLOE3HtpQv84Y8orsec+uJgtiiiyJMw==,
-      }
-    engines: { node: ">=18.0" }
-    dependencies:
-      fast-printf: 1.6.9
-      safe-stable-stringify: 2.4.3
-      semver-compare: 1.0.0
-    dev: false
-
   /rollup@2.79.1:
     resolution:
       {
@@ -7478,14 +7430,6 @@ packages:
       is-regex: 1.1.4
     dev: true
 
-  /safe-stable-stringify@2.4.3:
-    resolution:
-      {
-        integrity: sha512-e2bDA2WJT0wxseVd4lsDP4+3ONX6HpMXQa1ZhFQ7SU+GjvORCmShbCMltrtIDfkYhVHrOcPtj+KhmDBdPdZD1g==,
-      }
-    engines: { node: ">=10" }
-    dev: false
-
   /safer-buffer@2.1.2:
     resolution:
       {
@@ -7500,13 +7444,6 @@ packages:
       }
     dependencies:
       loose-envify: 1.4.0
-    dev: false
-
-  /semver-compare@1.0.0:
-    resolution:
-      {
-        integrity: sha512-YM3/ITh2MJ5MtzaM429anh+x2jiLVjqILF4m4oyQB18W7Ggea7BfqdH/wGMK7dDiMghv/6WG7znWMwUDzJiXow==,
-      }
     dev: false
 
   /semver@6.3.1:
@@ -7744,6 +7681,14 @@ packages:
         integrity: sha512-OpZ3zP+jT1PI7I8nemJX4AKmAX070ZkYPVWV/AaKTJl+tXCTGyVdC1a4SL8RUQYEwk/f34ZX8UTykN68FwrqAA==,
       }
     engines: { node: ">= 0.6" }
+    dev: false
+
+  /stoppable@1.1.0:
+    resolution:
+      {
+        integrity: sha512-KXDYZ9dszj6bzvnEMRYvxgeTHU74QBFL54XKtP3nyMuJ81CFYtABZ3bAzL2EdFUaEwJOBOgENyFj3R7oTzDyyw==,
+      }
+    engines: { node: ">=4", npm: ">=6" }
     dev: false
 
   /streamx@2.15.4:
@@ -8324,14 +8269,6 @@ packages:
       }
     engines: { node: ">=10" }
     dev: true
-
-  /type-fest@2.19.0:
-    resolution:
-      {
-        integrity: sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==,
-      }
-    engines: { node: ">=12.20" }
-    dev: false
 
   /type-is@1.6.18:
     resolution:

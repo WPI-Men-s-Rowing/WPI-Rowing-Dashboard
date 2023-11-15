@@ -1,13 +1,14 @@
+import { createTerminus } from "@godaddy/terminus";
+import { prisma } from "database";
 import http from "http";
-import { createHttpTerminator } from "http-terminator";
 import { AddressInfo } from "net";
 import app from "../app.ts";
 
 // Attempt a database connection
 console.info("Connecting to database...");
 try {
-  // This intrinsically connects to the database
-  import("database");
+  // This intrinsically connects to the database and runs a test to make sure it works
+  await prisma.$executeRaw`select 1`;
   console.log("Successfully connected to the database");
 } catch (error) {
   // Log any errors
@@ -27,54 +28,46 @@ app.set("port", port);
 // Create the server, enable the application
 console.info("Starting server...");
 const server: http.Server = http.createServer(app);
-
-// Export the server, so that testing client can use it
-export default server;
-
-// Setup graceful exit logic
-// Exit conditions
-[
-  "SIGHUP",
-  "SIGINT",
-  "SIGQUIT",
-  "SIGILL",
-  "SIGTRAP",
-  "SIGABRT",
-  "SIGBUS",
-  "SIGFPE",
-  "SIGUSR1",
-  "SIGSEGV",
-  "SIGUSR2",
-  "SIGTERM",
-].forEach(function (sig) {
-  // On any of those
-  process.on(sig, function () {
-    // On shutdown request
-    console.info(`Server shutting down due to ${sig}...`);
-
-    // Create a terminator, to safely destroy the HTTP server
-    const httpTerminator = createHttpTerminator({
-      server,
-      gracefulTerminationTimeout: 10,
-    });
-    httpTerminator
-      .terminate()
-      .then(() => {
-        // Log the exit
-        console.log("Server shutdown complete");
-        process.exit(0); // Exit normally
-      })
-      .catch((error) => {
-        console.error("Unknown shutdown error: " + error);
-        process.exit(1); // Exit with the error
-      });
-  });
-});
-
-// Listen on the provided port, on all interfaces
-server.listen(port);
 server.on("error", onError); // Error handler
 server.on("listening", onListening); // Notify that we started
+createTerminus(server, {
+  healthChecks: {
+    "/healthcheck": healthCheck,
+  },
+  onSignal: onSignal,
+  onShutdown: onShutdown,
+});
+server.listen(port); // Start the server
+
+/**
+ * Function to handle signals to shut down, handles any cleanup
+ */
+function onSignal(): Promise<void> {
+  // On shutdown request
+  console.info(`Server shutting down...`);
+
+  // Return a successful promise, so that we can return one here without using anything async
+  return Promise.resolve();
+}
+
+/**
+ * Function to handle any last tasks after cleanup
+ */
+function onShutdown(): Promise<void> {
+  console.log("Shut down complete");
+
+  // Return a successful promise, so that we can return one here without using anything async
+  return Promise.resolve();
+}
+
+/**
+ * Function to handle healthcheck requests, ensures that Prisma is working
+ * correctly
+ */
+async function healthCheck() {
+  // Simply validate the DB connection works
+  await prisma.$executeRaw`select 1`;
+}
 
 /**
  * Event listener for HTTP server "error" event, to provide user friendly error output and then exit
@@ -112,10 +105,10 @@ function onError(error: NodeJS.ErrnoException): void {
  * Event listener for HTTP server "listening" event.
  */
 function onListening(): void {
-  // Get the address we're listening on
+  // Get the address we're listening to on
   const addr: string | AddressInfo | null = server.address();
 
-  // If it's a string, simply get it (it's a pipe)
+  // If it's a string, get it (it's a pipe)
   const bind: string =
     typeof addr === "string" ? "pipe " + addr : "port " + addr?.port; // Otherwise get the port
   console.info("Server listening on " + bind); // Debug output that we're listening

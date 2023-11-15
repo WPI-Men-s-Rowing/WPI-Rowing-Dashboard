@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // URL base for all devices requests
-const DEVICES_URL_BASE = "http://logbook-api.nksports.com/api/v1";
+const DEVICES_URL_BASE = "https://logbook-api.nksports.com/api/v1";
 
 /**
  * Response type of getting a singular device by its ID

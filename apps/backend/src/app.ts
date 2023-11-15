@@ -1,11 +1,18 @@
 import { IErrorResponse } from "common";
 import cookieParser from "cookie-parser";
 import express, { Express, NextFunction, Request, Response } from "express";
+import helmet from "helmet";
 import createError, { HttpError } from "http-errors";
 import logger from "morgan";
+import rateLimiter from "./middleware/rateLimiter.js";
 import nkAccountsRouter from "./routes/nk-accounts.ts";
 
 const app: Express = express(); // Set up the backend
+
+// Security settings/middlewares
+app.use(helmet()); // Use helmet for security
+app.use(rateLimiter()); // Use the rate limiter
+app.disable("x-powered-by"); // Disable the fingerprinting for security
 
 // Setup generic middleware
 app.use(
@@ -17,16 +24,8 @@ app.use(
   }),
 ); // This records all HTTP requests
 app.use(express.json()); // This processes requests as JSON
-app.use(express.urlencoded({ extended: false })); // URL parser
+app.use(express.urlencoded({ extended: true })); // URL parser
 app.use(cookieParser()); // Cookie parser
-
-// This is a generic path for the healthcheck. This is not publicly available anywhere
-// (e.g., Docker and the dev proxy DO NOT expose this). It exists exclusively so that can check the server
-// is alive/responsive. If this returns anything other than 200, Docker will automatically kill your backend
-// (under the assumption that something has gone horribly wrong). This must come before the authentication endpoint
-app.use("/healthcheck", function (_req: Request, res: Response): void {
-  res.sendStatus(200);
-});
 
 // Setup routers. ALL ROUTERS MUST use /api as a start point, or they
 // won't be reached by the default proxy and prod setup
@@ -63,5 +62,18 @@ app.use(function (
           : err.message,
     } satisfies IErrorResponse);
 });
+
+// Generic 404 handler
+app.use(
+  (
+    req: Request,
+    res: Response,
+    // Express gets cranky, so we need this param
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _: NextFunction,
+  ) => {
+    res.sendStatus(404); // Send a 404
+  },
+);
 
 export default app; // Export the backend, so that www.ts can start it
