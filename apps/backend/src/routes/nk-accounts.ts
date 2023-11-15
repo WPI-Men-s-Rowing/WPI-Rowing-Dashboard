@@ -11,6 +11,7 @@ import {
 import { NkCredential, prisma } from "database";
 import express, { Request, Response, Router } from "express";
 import { z } from "zod";
+import { validateHasId } from "../middleware/validateHasId.js";
 import nkAccountsDataRouter from "./nk-accounts-data.ts";
 
 // Router that acts as an entry point to all NK data.
@@ -45,77 +46,51 @@ interface ITokenResponse {
 
 router
   .route("/:id")
-  // Again, using express 4 with express 5 types. Gets a single NK account by ID
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  .get(async function (req: Request, res: Response): Promise<void> {
-    // Validate the ID is there
-    if (req.params.id == undefined) {
-      res.status(400).send({
-        message: "Missing required parameter ID",
-      } satisfies IErrorResponse);
-      return;
-    }
-
-    // Now parse the ID to ensure it is a number
-    let parsedId: number;
-    try {
-      parsedId = parseInt(req.params.id);
-    } catch (error) {
-      res.status(400).send("Invalid account ID (account IDs must be integers)");
-      return;
-    }
-
-    // Now get the account at that ID
-    const account = await prisma.nkCredential.findUnique({
-      where: {
-        userId: parsedId,
-      },
-    });
-
-    // Validate the account exists
-    if (account == null) {
-      res.status(404).send({
-        message: "Invalid account ID (account ID does not exist)",
-      } satisfies IErrorResponse);
-      return;
-    }
-
-    // Now that we've validated everything, send all the data
-    res.status(200).send({
-      firstName: account.firstName,
-      lastName: account.lastName,
-      userId: account.userId,
-      ownTeamId: account.ownTeamId,
-    } satisfies IGetNkAccountsByIdResponse);
-  })
-  // Deletes a single NK account by ID
-  .delete(
-    // Again, using express 4 with express 5 types
+  .get(
+    validateHasId("id"),
+    // Again, using express 4 with express 5 types. Gets a single NK account by ID
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     async function (req: Request, res: Response): Promise<void> {
-      // Validate the ID is there
-      if (req.params.id == undefined) {
-        res.status(400).send({
-          message: "Missing required parameter ID",
+      // Get the ID. We know this is safe because of the middleware
+      const userId = parseInt(req.params.id);
+
+      // Now get the account at that ID
+      const account = await prisma.nkCredential.findUnique({
+        where: {
+          userId: userId,
+        },
+      });
+
+      // Validate the account exists
+      if (account == null) {
+        res.status(404).send({
+          message: "Invalid account ID (account ID does not exist)",
         } satisfies IErrorResponse);
         return;
       }
 
-      // Now parse the ID to ensure it is a number
-      let parsedId: number;
-      try {
-        parsedId = parseInt(req.params.id);
-      } catch (error) {
-        res
-          .status(400)
-          .send("Invalid account ID (account IDs must be integers)");
-        return;
-      }
+      // Now that we've validated everything, send all the data
+      res.status(200).send({
+        firstName: account.firstName,
+        lastName: account.lastName,
+        userId: account.userId,
+        ownTeamId: account.ownTeamId,
+      } satisfies IGetNkAccountsByIdResponse);
+    },
+  )
+  // Deletes a single NK account by ID
+  .delete(
+    validateHasId("id"),
+    // Again, using express 4 with express 5 types
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    async function (req: Request, res: Response): Promise<void> {
+      // Get the ID. This is safe because of the middleware
+      const userId = parseInt(req.params.id);
 
       // Now delete the account at that ID. Easy enough to do it this way so we don't throw or anything if it fails
       const deletedInfo = await prisma.nkCredential.deleteMany({
         where: {
-          userId: parsedId,
+          userId: userId,
         },
       });
 
@@ -135,25 +110,12 @@ router
 // Updates a single NK account by ID
 router.patch(
   "/:id",
+  validateHasId("id"),
   // Again, using express 4 with express 5 types
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   async function (req: Request, res: Response): Promise<void> {
-    // Validate the ID is there
-    if (req.params.id == undefined) {
-      res.status(400).send({
-        message: "Missing required parameter ID",
-      } satisfies IErrorResponse);
-      return;
-    }
-
-    // Now parse the ID to ensure it is a number
-    let parsedId: number;
-    try {
-      parsedId = parseInt(req.params.id);
-    } catch (error) {
-      res.status(400).send("Invalid account ID (account IDs must be integers)");
-      return;
-    }
+    // Get the ID. This is safe because of the middleware
+    const userId = parseInt(req.params.id);
 
     let request: z.infer<typeof PatchNkAccountsByIdRequest>; // Request
     try {
@@ -171,7 +133,7 @@ router.patch(
     try {
       updatedUser = await prisma.nkCredential.update({
         where: {
-          userId: parsedId,
+          userId: userId,
         },
         data: {
           firstName: request.firstName,
