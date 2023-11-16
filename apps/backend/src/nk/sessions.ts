@@ -130,7 +130,7 @@ interface ISingularSessionSingularStrokeResponse {
   elapsedTime: number; // Elapsed time since the beginning of the interval (in ms)
   latitude: number; // Latitude the stroke was taken at
   longitude: number; // Longitude the stroke was taken at
-  gpsInstaSpeed: number; // Instantaneous GPS speed (in meters/stroke)
+  gpsInstaSpeed: number; // Instantaneous GPS speed (in meters/second)
   impellerInstaSpeed: number; // Instantaneous water speed (in meters/stroke)
   gpsTotalDistance: number; // Accumulated GPS distance to this point (in meters)
   impellerTotalDistance: number; // Accumulated impellers distance to this point (in meters)

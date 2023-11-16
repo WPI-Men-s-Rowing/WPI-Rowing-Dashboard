@@ -1,4 +1,6 @@
 import { nanoid } from "nanoid";
+import qs from "qs";
+import { z } from "zod";
 
 // NK Auth Redirect path location
 export const NkAuthRedirectPath = "/nk-auth-redirect";
@@ -8,12 +10,12 @@ export const NkAuthRedirectPath = "/nk-auth-redirect";
  * and redirecting to NK with the required parameters
  * @param state the application redirection data, as provided by the client
  */
-export function handleNkLoginRequest(state: Record<string, unknown>): void {
+export function handleNkLoginRequest(state: Record<string, string>): void {
   // Create a secure ID to pass with state
   const id = nanoid(15);
 
   // Session data, include the current URL and the expiry for this token
-  const sessionData: IRedirectData = {
+  const sessionData: z.infer<typeof LocalStorageData> = {
     state: state,
     expiresOn: Date.now() + 60 * 1000,
   };
@@ -21,20 +23,17 @@ export function handleNkLoginRequest(state: Record<string, unknown>): void {
   // Save the session
   localStorage.setItem(id, JSON.stringify(sessionData));
 
-  // Create the params for the callback
-  const urlParams = new URLSearchParams({
-    response_type: "code",
-    // Look in the env file for the client id
-    client_id: import.meta.env.VITE_NK_CLIENT_ID as string,
-    redirect_uri: window.location.origin + NkAuthRedirectPath,
-    scope: "read",
-    state: id,
-  });
-
   // Redirect to the NK oauth provider
   window.location.assign(
     "https://oauth-logbook.nksports.com/oauth/authorize?" +
-      urlParams.toString(),
+      qs.stringify({
+        response_type: "code",
+        // Look in the env file for the client id
+        client_id: import.meta.env.VITE_NK_CLIENT_ID as string,
+        redirect_uri: window.location.origin + NkAuthRedirectPath,
+        scope: "read",
+        state: id,
+      } satisfies ICodeRequestQueryParams),
   );
 }
 
@@ -46,21 +45,18 @@ export function handleNkLoginRequest(state: Record<string, unknown>): void {
  * not matching locally stored state (e.g., this is expired OR from a phishing/CSRF attempt).
  * In this case, local storage will STILL BE CLEANED
  */
-export function handleNkLoginReturn(): IRedirectReturn {
+export function handleNkLoginReturn() {
   // Parse the URL search parameters, so we have the desired data
-  const urlParams = new URLSearchParams(location.search);
-
-  const code = urlParams.get("code"); // Get the returned code
-  const state = urlParams.get("state"); // Get the returned state
+  const urlParams = RedirectReturnData.safeParse(qs.parse(location.search));
 
   // Validate that we have the code and state (as we need both)
-  if (code == null || state == null) {
+  if (!urlParams.success) {
     CleanupLocalStorage(); // Cleanup local storage before throwing
     throw new Error("Redirect missing code/state!");
   }
 
   // Get the state out of the local storage
-  const stateBodyString = localStorage.getItem(state);
+  const stateBodyString = localStorage.getItem(urlParams.data.state);
 
   CleanupLocalStorage(); // Cleanup the local storage now
 
@@ -70,7 +66,7 @@ export function handleNkLoginReturn(): IRedirectReturn {
   }
 
   // Now parse the body into JSON
-  const stateBody = JSON.parse(stateBodyString) as IRedirectData;
+  const stateBody = LocalStorageData.parse(stateBodyString);
 
   // Validate the attempt has expired
   if (stateBody.expiresOn < Date.now()) {
@@ -78,7 +74,7 @@ export function handleNkLoginReturn(): IRedirectReturn {
   }
 
   // Return the data
-  return { state: stateBody.state, code: code } satisfies IRedirectReturn;
+  return { state: stateBody.state, code: urlParams.data.code };
 }
 
 /**
@@ -99,7 +95,7 @@ export function CleanupLocalStorage() {
     }
 
     // If this is redirect data, remove it
-    if (isRedirectData(storageItem)) {
+    if (LocalStorageData.safeParse(storageItem).success) {
       localStorage.removeItem(storageKey);
       i--; // Decrement teh counter
     }
@@ -107,48 +103,38 @@ export function CleanupLocalStorage() {
 }
 
 /**
- * Checks to ensure that the provided data matches the IRedirectData interface (e.g., this is a typegaurd)
- * @param data the data to check
+ * Query parameters for the code request
  */
-function isRedirectData(data: unknown): boolean {
-  const redirectData = data as IRedirectData; // Cast the data
-
-  // Validate that we have the proper data
-  return (
-    data !== null &&
-    data !== undefined &&
-    redirectData.state !== undefined &&
-    redirectData.expiresOn !== undefined
-  );
+interface ICodeRequestQueryParams {
+  response_type: "code"; // Required
+  client_id: string; // Required client ID
+  redirect_uri: string; // Redirect URI
+  scope: string; // The scopes to use, space separated list
+  state: string; // The state to use
 }
+
+/**
+ * Data returned by the redirect attempt, code and state must be returned
+ */
+const RedirectReturnData = z.strictObject({
+  code: z.string(),
+  state: z.string(),
+});
 
 /**
  * Interface that stores redirect data, including the path to redirect to
  * and the expiry for that path. Meant to be used internally and stored in local storage
  */
-interface IRedirectData {
-  /**
-   * The desired redirect data
-   */
-  state: Record<string, unknown>;
+const LocalStorageData = z
+  .strictObject({
+    /**
+     * The desired redirect data
+     */
+    state: z.record(z.string(), z.string()),
 
-  /**
-   * The time from the epoch in ms that this redirect attempt expires
-   */
-  expiresOn: number;
-}
-
-/**
- * Data that will be returned from a successful redirect attempt
- */
-interface IRedirectReturn {
-  /**
-   * The desired redirect data
-   */
-  state: Record<string, unknown>;
-
-  /**
-   * The returned OAuth code
-   */
-  code: string;
-}
+    /**
+     * The time from the epoch in ms that this redirect attempt expires
+     */
+    expiresOn: z.coerce.number(),
+  })
+  .strict();

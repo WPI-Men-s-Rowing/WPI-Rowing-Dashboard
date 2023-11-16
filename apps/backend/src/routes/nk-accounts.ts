@@ -1,11 +1,11 @@
 import {
+  GetNkAccountsByIdResponse,
+  GetNkAccountsResponse,
   IErrorResponse,
-  IGetNkAccountsByIdResponse,
-  IGetNkAccountsResponse,
-  IPatchNkAccountsByIdResponse,
-  IPostNkAccountsResponse,
   PatchNkAccountsByIdRequest,
+  PatchNkAccountsByIdResponse,
   PostNkAccountsRequest,
+  PostNkAccountsResponse,
 } from "common";
 import { NkCredential, prisma } from "database";
 import express, { Request, Response, Router } from "express";
@@ -47,7 +47,7 @@ router
         lastName: account.lastName,
         userId: account.userId,
         ownTeamId: account.ownTeamId,
-      } satisfies IGetNkAccountsByIdResponse);
+      } satisfies z.infer<typeof GetNkAccountsByIdResponse>);
     },
   )
   // Deletes a single NK account by ID
@@ -120,7 +120,7 @@ router.patch(
       lastName: updatedUser.lastName,
       userId: updatedUser.userId,
       ownTeamId: updatedUser.ownTeamId,
-    } satisfies IPatchNkAccountsByIdResponse);
+    } satisfies z.infer<typeof PatchNkAccountsByIdResponse>);
   },
 );
 
@@ -141,9 +141,9 @@ router
           lastName: account.lastName,
           userId: account.userId,
           ownTeamId: account.ownTeamId,
-        } satisfies IGetNkAccountsByIdResponse;
+        } satisfies z.infer<typeof GetNkAccountsByIdResponse>;
       }),
-    } satisfies IGetNkAccountsResponse);
+    } satisfies z.infer<typeof GetNkAccountsResponse>);
   })
   // Endpoint to add an account
   .post(
@@ -207,7 +207,7 @@ router
         lastName: createdAccount.lastName,
         userId: createdAccount.userId,
         ownTeamId: createdAccount.ownTeamId,
-      } satisfies IPostNkAccountsResponse);
+      } satisfies z.infer<typeof PostNkAccountsResponse>);
     },
   );
 

@@ -11,12 +11,14 @@
     "lint": "eslint --max-warnings 0 --report-unused-disable-directives --fix ."
   },
   "dependencies": {
+    "@types/qs": "^6.9.10",
     "axios": "^1.6.1",
     "common": "workspace:*",
     "localforage": "^1.10.0",
     "mapbox-gl": "^2.14.1",
     "match-sorter": "^6.3.1",
     "nanoid": "^5.0.2",
+    "qs": "^6.11.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-https-redirect": "^1.1.0",

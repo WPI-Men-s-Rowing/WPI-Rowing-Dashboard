@@ -19,7 +19,11 @@ function Navbar() {
           <button
             onClick={() => {
               // Handle the NK login request
-              nkAuth.handleNkLogin({ redirectLocation: location.pathname });
+              nkAuth.handleNkLogin({
+                redirectLocation: location.pathname,
+                firstName: "Ian",
+                lastName: "Wright",
+              });
             }}
           >
             <FaUserAstronaut size={25} />

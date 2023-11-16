@@ -26,8 +26,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             PostAuthCodeType,
             AxiosResponse<Record<string, never>>
           >("/api/nk-accounts", {
-            firstName: state.firstName as string,
-            lastName: state.lastName as string,
+            firstName: state.firstName!,
+            lastName: state.lastName!,
             code: code,
           } satisfies PostAuthCodeType);
         }}

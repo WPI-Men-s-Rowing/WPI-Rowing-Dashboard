@@ -19,5 +19,5 @@ export interface INkAuthContext {
    * @param appState the application state to persist. This will be passed back
    * to the NkAuthProvider's redirectCallback method when a redirect is processed
    */
-  handleNkLogin: (appState: Record<string, unknown>) => void;
+  handleNkLogin: (appState: Record<string, string>) => void;
 }
