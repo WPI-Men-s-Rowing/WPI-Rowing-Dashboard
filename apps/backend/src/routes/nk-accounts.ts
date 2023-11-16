@@ -10,7 +10,7 @@ import {
 import { NkCredential, prisma } from "database";
 import express, { Request, Response, Router } from "express";
 import { z } from "zod";
-import { IRequestWithId, validateHasId } from "../middleware/validateHasId.js";
+import { validateHasId } from "../middleware/validateHasId.js";
 import { ITokenResponse, handleCodeExchange } from "../nk/oauth.js";
 import nkAccountsDataRouter from "./nk-accounts-data.ts";
 
@@ -29,7 +29,7 @@ router
       // Now get the account at that ID
       const account = await prisma.nkCredential.findUnique({
         where: {
-          userId: (req as IRequestWithId)._id,
+          userId: parseInt(req.params.id),
         },
       });
 
@@ -59,7 +59,7 @@ router
       // Now delete the account at that ID. Easy enough to do it this way so we don't throw or anything if it fails
       const deletedInfo = await prisma.nkCredential.deleteMany({
         where: {
-          userId: (req as IRequestWithId)._id,
+          userId: parseInt(req.params.id),
         },
       });
 
@@ -99,7 +99,7 @@ router.patch(
     try {
       updatedUser = await prisma.nkCredential.update({
         where: {
-          userId: (req as IRequestWithId)._id,
+          userId: parseInt(req.params.id),
         },
         data: {
           firstName: request.firstName,

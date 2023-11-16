@@ -6,14 +6,14 @@ const DEVICES_URL_BASE = "https://logbook-api.nksports.com/api/v1";
 /**
  * Response type of getting a singular device by its ID
  */
-interface IDevicesByIdResponse {
+export interface IDevicesByIdResponse {
   id: number; // ID of the device. NOTE: There can be multiple devices with different IDs for a given serial number
   type: 1 | 2 | 3 | 4 | 5 | 6 | 7; // 1 for speed coach, 2 for cox box, 3 for oarlock, 4, for impeller, 5 for heart-rate belt, 6 for seat display, 7 for boat light
   model: string; // Human-readable description of what the device is
   name: string; // Human-readable device name
   firmwareVersion: string; // Firmware version running on the device
   hardwareVersion: string; // Hardware version running on the device
-  serialNumber: number; // Serial number of the device (should this be the same as ID? Yes. Is it? No)
+  serialNumber: string; // Serial number of the device (should this be the same as ID? Yes. Is it? No)
   manufacturerName: string; // String representation of the manufacturer of the device
   profileVersion: string; // BLE profile version running on the device
   inboardLength: number | null; // If the device is an EmPower OarLock, this is the saved inboard reading
@@ -26,7 +26,7 @@ interface IDevicesByIdResponse {
 /**
  * Response type of getting all devices associated with the account
  */
-type IDevicesResponse = IDevicesByIdResponse[];
+export type IDevicesResponse = IDevicesByIdResponse[];
 
 /**
  * Function to get all devices associated with the given account

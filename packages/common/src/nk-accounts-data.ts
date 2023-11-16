@@ -103,3 +103,29 @@ export const GetSessionsQueryParams = z
     startGpsLonMax: z.coerce.number().optional(), // Maximum start GPS longitude
   })
   .strict();
+
+/**
+ * Return type for a singular device fetch by ID
+ */
+export const GetDeviceResponse = z
+  .strictObject({
+    id: z.coerce.number(), // The ID of the device
+    type: z.enum(["SpeedCoach", "CoxBox"]), // The possibilities for device type
+    model: z.string(), // Human-readable device model
+    name: z.string(), // Human-readable device name
+    firmwareVersion: z.string(), // Firmware version running on the device
+    hardwareVersion: z.string(), // Hardware version running on the device
+    serialNumber: z.string(), // Serial number running on the device
+    manufacturerName: z.string(), // Manufacturer name of the device
+    profileVersion: z.string(), // BLE profile version running on the device
+  })
+  .strict();
+
+/**
+ * Return type for multiple devices
+ */
+export const GetDevicesResponse = z
+  .strictObject({
+    devices: z.array(GetDeviceResponse),
+  })
+  .strict();

@@ -1,4 +1,6 @@
 import {
+  GetDeviceResponse,
+  GetDevicesResponse,
   GetSessionResponse,
   GetSessionsQueryParams,
   GetSessionsResponse,
@@ -10,7 +12,12 @@ import { prisma } from "database";
 import express, { Request, Response, Router } from "express";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
-import { IRequestWithId, validateHasId } from "../middleware/validateHasId.ts";
+import { validateHasId } from "../middleware/validateHasId.ts";
+import {
+  IDevicesByIdResponse,
+  getAllDevices,
+  getDevice,
+} from "../nk/devices.ts";
 import { handleTokenRefresh } from "../nk/oauth.ts";
 import {
   ISingularSessionResponse,
@@ -132,6 +139,36 @@ function iSessionStrokeToStrokeResponse(
   } satisfies z.infer<typeof GetStrokeResponse>;
 }
 
+/**
+ * Function to convert an IDeviceByIdResponse object (from NK) to a GetDeviceResponse object
+ * @param device the IDeviceByResponse object to convert
+ * @returns a GetDeviceResponse object containing the same data
+ */
+function iDeviceToDeviceResponse(
+  device: IDevicesByIdResponse,
+): z.infer<typeof GetDeviceResponse> {
+  let deviceType: z.infer<typeof GetDeviceResponse.shape.type>;
+  if (device.type == 1) {
+    deviceType = GetDeviceResponse.shape.type.enum.SpeedCoach;
+  } else if (device.type == 2) {
+    deviceType = GetDeviceResponse.shape.type.enum.CoxBox;
+  } else {
+    throw new Error("Invalid NK Device Type");
+  }
+
+  return {
+    id: device.id,
+    type: deviceType,
+    model: device.model,
+    name: device.name,
+    firmwareVersion: device.firmwareVersion,
+    hardwareVersion: device.hardwareVersion,
+    serialNumber: device.serialNumber,
+    manufacturerName: device.manufacturerName,
+    profileVersion: device.manufacturerName,
+  };
+}
+
 // Router for NK account data. Assumes to be mounted somewhere that has :id as a path parameter
 const router: Router = express.Router();
 
@@ -154,7 +191,7 @@ router.get(
 
     // Get the sessions
     let sessions = await fetchSessions(
-      await getAccessToken((req as IRequestWithId)._id),
+      await getAccessToken(parseInt(req.params.accountId)),
       filters.data.endTimeMax,
       filters.data.endTimeMin,
     );
@@ -262,34 +299,18 @@ router.get(
 router.get(
   "/:accountId/data/sessions/:sessionId",
   validateHasId("accountId"),
+  validateHasId("sessionId"),
   // Using express 5 with express 4 types, safe to ignore
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   async function (req: Request, res: Response): Promise<void> {
-    // Validate we have a session ID
-    if (!req.params.sessionId) {
-      res.status(400).send({
-        message: "Missing required parameter sessionId",
-      } satisfies IErrorResponse);
-      return;
-    }
-
-    // Parse the session ID as an integer
-    let sessionId: number;
-    try {
-      sessionId = parseInt(req.params.sessionId);
-    } catch (error) {
-      res.status(400).send({
-        message: "Parameter sessionId must be an integer",
-      } satisfies IErrorResponse);
-      return;
-    }
-
     // Get the sessions
     let sessions = await fetchSessions(
-      await getAccessToken((req as IRequestWithId)._id),
+      await getAccessToken(parseInt(req.params.accountId)),
     );
 
-    sessions = sessions.filter((session) => session.id == sessionId);
+    sessions = sessions.filter(
+      (session) => session.id == parseInt(req.params.sessionId),
+    );
 
     // If we didn't find a session with that ID, just 404 it
     if (sessions.length == 0) {
@@ -305,34 +326,18 @@ router.get(
 router.get(
   "/:accountId/data/sessions/:sessionId/strokes",
   validateHasId("accountId"),
+  validateHasId("sessionId"),
   // Using express 5 with express 4 types, safe to ignore
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   async function (req: Request, res: Response): Promise<void> {
-    // Validate we have a session ID
-    if (!req.params.sessionId) {
-      res.status(400).send({
-        message: "Missing required parameter sessionId",
-      } satisfies IErrorResponse);
-      return;
-    }
-
-    // Parse the session ID as an integer
-    let sessionId: number;
-    try {
-      sessionId = parseInt(req.params.sessionId);
-    } catch (error) {
-      res.status(400).send({
-        message: "Parameter sessionId must be an integer",
-      } satisfies IErrorResponse);
-      return;
-    }
-
     // Get the sessions
     let sessions = await fetchSessions(
-      await getAccessToken((req as IRequestWithId)._id),
+      await getAccessToken(parseInt(req.params.accountId)),
     );
 
-    sessions = sessions.filter((session) => session.id == sessionId);
+    sessions = sessions.filter(
+      (session) => session.id == parseInt(req.params.sessionId),
+    );
 
     // If we didn't find a session with that ID, just 404 it
     if (sessions.length == 0) {
@@ -342,7 +347,7 @@ router.get(
 
     // Get the session strokes for the provided session
     const sessionStrokes = await fetchStrokes(
-      await getAccessToken((req as IRequestWithId)._id),
+      await getAccessToken(parseInt(req.params.accountId)),
       [sessions[0].id],
     );
 
@@ -359,53 +364,19 @@ router.get(
 router.get(
   "/:accountId/data/sessions/:sessionId/strokes/:strokeId",
   validateHasId("accountId"),
+  validateHasId("sessionId"),
+  validateHasId("strokeId"),
   // Using express 5 with express 4 types, safe to ignore
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   async function (req: Request, res: Response): Promise<void> {
-    // Validate we have a session ID
-    if (!req.params.sessionId) {
-      res.status(400).send({
-        message: "Missing required parameter sessionId",
-      } satisfies IErrorResponse);
-      return;
-    }
-
-    // Parse the session ID as an integer
-    let sessionId: number;
-    try {
-      sessionId = parseInt(req.params.sessionId);
-    } catch (error) {
-      res.status(400).send({
-        message: "Parameter sessionId must be an integer",
-      } satisfies IErrorResponse);
-      return;
-    }
-
-    // Validate we have a session ID
-    if (!req.params.strokeId) {
-      res.status(400).send({
-        message: "Missing required parameter strokeId",
-      } satisfies IErrorResponse);
-      return;
-    }
-
-    // Parse the session ID as an integer
-    let strokeId: number;
-    try {
-      strokeId = parseInt(req.params.sessionId);
-    } catch (error) {
-      res.status(400).send({
-        message: "Parameter strokeId must be an integer",
-      } satisfies IErrorResponse);
-      return;
-    }
-
     // Get the sessions
     let sessions = await fetchSessions(
-      await getAccessToken((req as IRequestWithId)._id),
+      await getAccessToken(parseInt(req.params.accountId)),
     );
 
-    sessions = sessions.filter((session) => session.id == sessionId);
+    sessions = sessions.filter(
+      (session) => session.id == parseInt(req.params.sessionId),
+    );
 
     // If we didn't find a session with that ID, just 404 it
     if (sessions.length == 0) {
@@ -415,10 +386,12 @@ router.get(
 
     // Get the session strokes for the provided session
     const sessionStrokes = (
-      await fetchStrokes(await getAccessToken((req as IRequestWithId)._id), [
+      await fetchStrokes(await getAccessToken(parseInt(req.params.accountId)), [
         sessions[0].id,
       ])
-    )[sessions[0].id].filter((stroke) => stroke.id == strokeId);
+    )[sessions[0].id].filter(
+      (stroke) => stroke.id == parseInt(req.params.strokeId),
+    );
 
     // If the provided stroke ID doesn't exist, send 404
     if (sessionStrokes.length == 0) {
@@ -428,6 +401,44 @@ router.get(
 
     // Send off the stroke now that we have it
     res.status(200).send(iSessionStrokeToStrokeResponse(sessionStrokes[0]));
+  },
+);
+
+// Endpoint to get all devices on the account
+router.get(
+  "/:accountId/data/devices",
+  validateHasId("accountId"),
+  // Using express 5 with express 4 types, safe to ignore
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  async function (req: Request, res: Response): Promise<void> {
+    // Get all the devices
+    const devices = await getAllDevices(
+      await getAccessToken(parseInt(req.params.accountId)),
+    );
+
+    // Send the devices off
+    res.status(200).send({
+      devices: devices.map((device) => iDeviceToDeviceResponse(device)),
+    } satisfies z.infer<typeof GetDevicesResponse>);
+  },
+);
+
+// Endpoint to get all devices on the account
+router.get(
+  "/:accountId/data/devices/:deviceId",
+  validateHasId("accountId"),
+  validateHasId("deviceId"),
+  // Using express 5 with express 4 types, safe to ignore
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  async function (req: Request, res: Response): Promise<void> {
+    // Get all the devices
+    const device = await getDevice(
+      await getAccessToken(parseInt(req.params.accountId)),
+      parseInt(req.params.deviceId),
+    );
+
+    // Send the devices off
+    res.status(200).send(iDeviceToDeviceResponse(device));
   },
 );
 
