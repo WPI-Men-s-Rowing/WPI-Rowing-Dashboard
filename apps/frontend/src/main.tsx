@@ -1,5 +1,5 @@
+import { PostNkAccountsRequest } from "api-schema";
 import axios, { AxiosResponse } from "axios";
-import { PostNkAccountsRequest } from "common";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import HttpsRedirect from "react-https-redirect";

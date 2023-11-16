@@ -7,7 +7,7 @@ import {
   GetStrokeResponse,
   GetStrokesResponse,
   IErrorResponse,
-} from "common";
+} from "api-schema";
 import { prisma } from "database";
 import express, { Request, Response, Router } from "express";
 import { z } from "zod";

@@ -1,4 +1,4 @@
-import { IErrorResponse } from "common";
+import { IErrorResponse } from "api-schema";
 import { NextFunction, Request, Response } from "express";
 
 /**

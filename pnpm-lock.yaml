@@ -43,12 +43,12 @@ importers:
       "@types/qs":
         specifier: ^6.9.10
         version: 6.9.10
+      api-schema:
+        specifier: workspace:*
+        version: link:../../packages/api-schema
       axios:
         specifier: ^1.6.1
         version: 1.6.1
-      common:
-        specifier: workspace:*
-        version: link:../../packages/common
       cookie-parser:
         specifier: ~1.4.4
         version: 1.4.6
@@ -128,12 +128,12 @@ importers:
       "@types/qs":
         specifier: ^6.9.10
         version: 6.9.10
+      api-schema:
+        specifier: workspace:*
+        version: link:../../packages/api-schema
       axios:
         specifier: ^1.6.1
         version: 1.6.1
-      common:
-        specifier: workspace:*
-        version: link:../../packages/common
       localforage:
         specifier: ^1.10.0
         version: 1.10.0
@@ -208,7 +208,7 @@ importers:
         specifier: ^1.8.1
         version: 1.8.1(eslint@8.53.0)(vite@4.5.0)
 
-  packages/common:
+  packages/api-schema:
     dependencies:
       zod:
         specifier: ^3.22.4

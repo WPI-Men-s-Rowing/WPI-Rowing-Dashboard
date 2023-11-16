@@ -14,7 +14,7 @@
     "@swc/helpers": "^0.5.3",
     "@types/qs": "^6.9.10",
     "axios": "^1.6.1",
-    "common": "workspace:*",
+    "api-schema": "workspace:*",
     "cookie-parser": "~1.4.4",
     "database": "workspace:*",
     "express": "5.0.0-beta.1",

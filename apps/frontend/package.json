@@ -13,7 +13,7 @@
   "dependencies": {
     "@types/qs": "^6.9.10",
     "axios": "^1.6.1",
-    "common": "workspace:*",
+    "api-schema": "workspace:*",
     "localforage": "^1.10.0",
     "mapbox-gl": "^2.14.1",
     "match-sorter": "^6.3.1",

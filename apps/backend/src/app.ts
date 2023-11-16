@@ -1,4 +1,4 @@
-import { IErrorResponse } from "common";
+import { IErrorResponse } from "api-schema";
 import cookieParser from "cookie-parser";
 import express, { Express, NextFunction, Request, Response } from "express";
 import helmet from "helmet";
