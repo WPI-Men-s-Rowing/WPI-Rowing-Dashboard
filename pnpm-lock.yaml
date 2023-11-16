@@ -85,6 +85,9 @@ importers:
       zod:
         specifier: ^3.22.4
         version: 3.22.4
+      zod-validation-error:
+        specifier: ^2.1.0
+        version: 2.1.0(zod@3.22.4)
     devDependencies:
       "@types/cookie-parser":
         specifier: ^1.4.6
@@ -8969,6 +8972,18 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /zod-validation-error@2.1.0(zod@3.22.4):
+    resolution:
+      {
+        integrity: sha512-VJh93e2wb4c3tWtGgTa0OF/dTt/zoPCPzXq4V11ZjxmEAFaPi/Zss1xIZdEB5RD8GD00U0/iVXgqkF77RV7pdQ==,
+      }
+    engines: { node: ">=18.0.0" }
+    peerDependencies:
+      zod: ^3.18.0
+    dependencies:
+      zod: 3.22.4
+    dev: false
 
   /zod@3.22.4:
     resolution:

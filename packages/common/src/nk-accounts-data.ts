@@ -1,26 +1,29 @@
 import { z } from "zod";
 
 /**
+ * Type that will be returned when attempting to get a singular stroke from a singular session
+ */
+export const GetStrokeResponse = z
+  .strictObject({
+    id: z.coerce.number(), // ID of the stroke
+    timestamp: z.coerce.date(), // Timestamp of the stroke
+    latitude: z.coerce.number(), // Latitude of the stroke
+    longitude: z.coerce.number(), // Longitude of the stroke
+    speed: z.coerce.number(), // Instantaneous GPS speed
+    totalDistance: z.coerce.number(), // Total distance in the session to this point
+    elapsedTime: z.coerce.number(), // Elapsed time in the session
+    distPerStroke: z.coerce.number(), // Instantaneous distance/stroke
+    strokeRate: z.coerce.number(), // Instantaneous stroke rate
+    strokeCount: z.coerce.number(), // Stroke count up to this point
+  })
+  .strict();
+
+/**
  * Type that will be returned when attempting to get all the strokes associated with a session
  */
 export const GetStrokesResponse = z
   .strictObject({
-    strokes: z.array(
-      z
-        .strictObject({
-          id: z.coerce.number(), // ID of the stroke
-          timestamp: z.coerce.date(), // Timestamp of the stroke
-          latitude: z.coerce.number(), // Latitude of the stroke
-          longitude: z.coerce.number(), // Longitude of the stroke
-          speed: z.coerce.number(), // Instantaneous GPS speed
-          totalDistance: z.coerce.number(), // Total distance in the session to this point
-          elapsedTime: z.coerce.number(), // Elapsed time in the session
-          distPerStroke: z.coerce.number(), // Instantaneous distance/stroke
-          strokeRate: z.coerce.number(), // Instantaneous stroke rate
-          strokeCount: z.coerce.number(), // Stroke count up to this point
-        })
-        .strict(),
-    ),
+    strokes: z.array(GetStrokeResponse),
   })
   .strict();
 
@@ -48,13 +51,12 @@ export const GetSessionResponse = z
         .strictObject({
           // If the session type is intervals, this will have the recorded intervals. Otherwise, this will be empty
           id: z.coerce.number(), // Unique ID for the interval
-          distance: z.coerce.number(), // Total distance covered in the interval
+          distance: z.coerce.number(), // Total distance covered up to this point
           avgDistPerStroke: z.coerce.number(), // Average distance per stroke over the interval
           avgStrokeRate: z.coerce.number(), // Average stroke rate over the interval
           avgSpeed: z.coerce.number(), // Average speed in meters/stroke over the interval
           startTime: z.coerce.date(), // Interval start date/time. This will be sent over the wire as a string in JSON form
-          endTime: z.coerce.date(), // Interval end date/time. This will be sent over the wire as a string in JSON form
-          duration: z.coerce.number(), // Interval duration in MS
+          elapsedTime: z.coerce.number(), // Interval duration in MS
           strokeCount: z.coerce.number(), // Interval number of strokes taken in the session
           startGpsLat: z.coerce.number(), // Interval session start latitude
           startGpsLon: z.coerce.number(), // Interval session start longitude
@@ -74,7 +76,8 @@ export const GetSessionsResponse = z
   .strict();
 
 /**
- * Zod schema representing the query parameters that can be provided to
+ * Zod schema representing the query parameters that can be provided to.
+ * All bounds are inclusive
  */
 export const GetSessionsQueryParams = z
   .strictObject({

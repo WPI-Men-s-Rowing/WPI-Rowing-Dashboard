@@ -19,7 +19,7 @@ interface ISessionsRequestUrlParams {
  * Note: Any missing data defaults to 0.0. So, if there is no impeller,
  * HRM, EMPower OarLock, etc, it will be 0.0
  */
-interface ISingularSessionResponse {
+export interface ISingularSessionResponse {
   elapsedTime: number; // Session time, in MS
   totalDistanceImp: number; // Distance in the session with an impeller used for data
   totalDistanceGps: number; // Distance in the session with the GPS used for data
@@ -57,7 +57,7 @@ interface ISingularSessionResponse {
   // Unless the session type is 3 (see above), this will have one field containing identical data to the above.
   // Thanks NK!
   {
-    elapsedTime: number; // Session time, in MS
+    elapsedTime: number; // Total elapsed time, in MS, to this point
     totalDistanceImp: number; // Distance in the session with an impeller used for data
     totalDistanceGps: number; // Distance in the session with the GPS used for data
     avgPaceImp: number; // Average pace (in ms/500m) with the impeller
@@ -66,7 +66,7 @@ interface ISingularSessionResponse {
     distStrokeImp: number; // Distance per stroke (in m/stroke) with the impeller
     distStrokeGps: number; // Distance per stroke (in m/stroke) with the GPS
     avgHeartRate: number; // Average heart rate (in beats per min)
-    totalStrokeCount: number; // Total strokes
+    totalStrokeCount: number; // Total strokes in this interval
     totalCalories: number; // Calculated from HR data
     avgCalHour: number; // Calculated from HR data and time
     avgSpeedGps: number; // Average speed from the GPS (in m/s)
@@ -121,7 +121,7 @@ interface ISessionStrokesRequestUrlParams {
  * Type for a singular stroke in a singular session. Do not use this for fetch,
  * see the below type for details on that
  */
-interface ISingularSessionSingularStrokeResponse {
+export interface ISingularSessionSingularStrokeResponse {
   id: number; // ID of the stroke
   timestamp: number; // Time (in ms from epoch) the stroke was taken at
   sessionId: number; // The session ID for the stroke
@@ -142,9 +142,9 @@ interface ISingularSessionSingularStrokeResponse {
   caloriesPerStroke: number; // Average calories burned per stroke up to this point
   gpsDistStroke: number; // Instantaneous GPS stroke distance (in meters)
   impellerDistStroke: number; // Instantaneous impeller stroke distance (in meters)
-  gpsPace: 0.0; // Instantaneous GPS split time (in ms/500 meters)
-  impellerPace: 0.0; // Instantaneous impeller split time (in ms/500 meters)
-  sessionStrokeIndex: 0; // The index number of the stroke in the session
+  gpsPace: number; // Instantaneous GPS split time (in ms/500 meters)
+  impellerPace: number; // Instantaneous impeller split time (in ms/500 meters)
+  sessionStrokeIndex: number; // The index number of the stroke in the session
   oarlockStrokes: {
     // The oarlock strokes related to this stroke. Will be empty if no EmPower oarlock
     id: number; // The ID of this oarlock stroke
