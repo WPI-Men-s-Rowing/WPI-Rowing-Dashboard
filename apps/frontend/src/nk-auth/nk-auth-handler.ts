@@ -26,14 +26,17 @@ export function handleNkLoginRequest(state: Record<string, string>): void {
   // Redirect to the NK oauth provider
   window.location.assign(
     "https://oauth-logbook.nksports.com/oauth/authorize?" +
-      qs.stringify({
-        response_type: "code",
-        // Look in the env file for the client id
-        client_id: import.meta.env.VITE_NK_CLIENT_ID as string,
-        redirect_uri: window.location.origin + NkAuthRedirectPath,
-        scope: "read",
-        state: id,
-      } satisfies ICodeRequestQueryParams),
+      qs.stringify(
+        {
+          response_type: "code",
+          // Look in the env file for the client id
+          client_id: import.meta.env.VITE_NK_CLIENT_ID as string,
+          redirect_uri: window.location.origin + NkAuthRedirectPath,
+          scope: "read",
+          state: id,
+        } satisfies ICodeRequestQueryParams,
+        { arrayFormat: "brackets" },
+      ),
   );
 }
 

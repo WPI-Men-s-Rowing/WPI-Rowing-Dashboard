@@ -1,5 +1,5 @@
 import axios from "axios";
-import { URLSearchParams } from "url";
+import qs from "qs";
 
 // URL base for all sessions requests
 const SESSIONS_URL_BASE = "https://logbook-api.nksports.com/api/v1";
@@ -114,7 +114,7 @@ export type ISessionsResponse = ISingularSessionResponse[];
  * URL Parameters for the session strokes request
  */
 interface ISessionStrokesRequestUrlParams {
-  sessionIds: string; // Comma-separated list of integers, which are the session IDs to get data from. No square brackets
+  sessionIds: number[]; // Comma-separated list of integers, which are the session IDs to get data from. No square brackets
 }
 
 /**
@@ -198,15 +198,15 @@ export async function fetchSessions(
   }
 
   return (
-    await axios.get<ISessionsResponse>(
-      "/sessions?" + new URLSearchParams(Object.entries(request)).toString(),
-      {
-        baseURL: SESSIONS_URL_BASE,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+    await axios.get<ISessionsResponse>("/sessions", {
+      params: request,
+      paramsSerializer: (params) =>
+        qs.stringify(params, { arrayFormat: "brackets" }),
+      baseURL: SESSIONS_URL_BASE,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
       },
-    )
+    })
   ).data;
 }
 
@@ -221,17 +221,16 @@ export async function fetchStrokes(
   sessions: number[],
 ): Promise<ISessionsStrokesResponse> {
   return (
-    await axios.get<ISessionsStrokesResponse>(
-      "/sessions/strokes" +
-        new URLSearchParams({
-          sessionIds: sessions.join(","),
-        } satisfies ISessionStrokesRequestUrlParams).toString(),
-      {
-        baseURL: SESSIONS_URL_BASE,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+    await axios.get<ISessionsStrokesResponse>("/sessions/strokes", {
+      params: {
+        sessionIds: sessions,
+      } satisfies ISessionStrokesRequestUrlParams,
+      paramsSerializer: (params) =>
+        qs.stringify(params, { arrayFormat: "brackets" }),
+      baseURL: SESSIONS_URL_BASE,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
       },
-    )
+    })
   ).data;
 }
