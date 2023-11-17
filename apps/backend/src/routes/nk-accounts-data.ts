@@ -1,17 +1,12 @@
 import {
-  GetDeviceResponse,
   GetDevicesResponse,
-  GetSessionResponse,
-  GetSessionsQueryParams,
-  GetSessionsResponse,
-  GetStrokeResponse,
   GetStrokesResponse,
-  IErrorResponse,
+  nkAccountsData
 } from "api-schema";
+import {device as APIDevice, session as APISession, stroke as APIStroke} from "api-schema/components";
 import { prisma } from "database";
-import express, { Request, Response, Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import { z } from "zod";
-import { fromZodError } from "zod-validation-error";
 import { validateHasId } from "../middleware/validateHasId.ts";
 import {
   IDevicesByIdResponse,
@@ -25,6 +20,8 @@ import {
   fetchSessions,
   fetchStrokes,
 } from "../nk/sessions.ts";
+import { zodiosRouter } from "@zodios/express";
+import asyncify from "express-asyncify";
 
 /**
  * Gets tha access token for a given user ID, refreshing using the refresh token
@@ -81,7 +78,7 @@ async function getAccessToken(userId: number): Promise<string> {
  */
 function iSessionToSessionResponse(
   session: ISingularSessionResponse,
-): z.infer<typeof GetSessionResponse> {
+): z.infer<typeof APISession> {
   return {
     id: session.id,
     description: session.name,
@@ -114,7 +111,7 @@ function iSessionToSessionResponse(
             };
           })
         : [],
-  } satisfies z.infer<typeof GetSessionResponse>;
+  };
 }
 
 /**
@@ -124,7 +121,7 @@ function iSessionToSessionResponse(
  */
 function iSessionStrokeToStrokeResponse(
   stroke: ISingularSessionSingularStrokeResponse,
-): z.infer<typeof GetStrokeResponse> {
+): z.infer<typeof APIStroke> {
   return {
     id: stroke.id,
     timestamp: new Date(stroke.timestamp),
@@ -136,8 +133,13 @@ function iSessionStrokeToStrokeResponse(
     distPerStroke: stroke.gpsDistStroke,
     strokeRate: stroke.strokeRate,
     strokeCount: stroke.strokeCount,
-  } satisfies z.infer<typeof GetStrokeResponse>;
+  };
 }
+
+// TODO:
+// fix this mess of a route
+// add openapi
+// see if we can get better error typing working?
 
 /**
  * Function to convert an IDeviceByIdResponse object (from NK) to a GetDeviceResponse object
@@ -146,12 +148,12 @@ function iSessionStrokeToStrokeResponse(
  */
 function iDeviceToDeviceResponse(
   device: IDevicesByIdResponse,
-): z.infer<typeof GetDeviceResponse> {
-  let deviceType: z.infer<typeof GetDeviceResponse.shape.type>;
+): z.infer<typeof APIDevice> {
+  let deviceType: z.infer<typeof APIDevice.shape.type>;
   if (device.type == 1) {
-    deviceType = GetDeviceResponse.shape.type.enum.SpeedCoach;
+    deviceType = APIDevice.shape.type.enum.SpeedCoach;
   } else if (device.type == 2) {
-    deviceType = GetDeviceResponse.shape.type.enum.CoxBox;
+    deviceType = APIDevice.shape.type.enum.CoxBox;
   } else {
     throw new Error("Invalid NK Device Type");
   }
@@ -170,151 +172,151 @@ function iDeviceToDeviceResponse(
 }
 
 // Router for NK account data. Assumes to be mounted somewhere that has :id as a path parameter
-const router: Router = express.Router();
+const router = zodiosRouter(nkAccountsData, {
+  router: asyncify(Router())
+});
 
 // Handler to get all sessions associated with this account, based on filters
 router.get(
   "/:accountId/data/sessions",
-  validateHasId("accountId"),
-  // Using express 5 with express 4 types, safe to ignore
+  // Using asyncify, safe to ignore
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  async function (req: Request, res: Response): Promise<void> {
-    const filters = GetSessionsQueryParams.safeParse(req.query);
-
-    // If the query params are bad, send off an error
-    if (!filters.success) {
-      res.status(400).send({
-        message: fromZodError(filters.error).toString(),
-      } satisfies IErrorResponse);
+  async function (req, res): Promise<void> {
+    if (!(await prisma.nkCredential.findUnique({
+      where: {
+        userId: req.params.accountId
+      }
+    }))) {
+      res.status(404).send({message: "Invalid account ID"});
       return;
     }
 
     // Get the sessions
     let sessions = await fetchSessions(
-      await getAccessToken(parseInt(req.params.accountId)),
-      filters.data.endTimeMax,
-      filters.data.endTimeMin,
+      await getAccessToken(req.params.accountId),
+      req.query.maxEndTime,
+      req.query.minEndTime,
     );
 
     // Now, apply the filters
-    if (filters.data.minElapsedTime) {
+    if (req.query.minElapsedTime) {
       sessions = sessions.filter(
-        (session) => session.elapsedTime >= filters.data.minElapsedTime!,
+        (session) => session.elapsedTime >= req.query.minElapsedTime!,
       );
     }
-    if (filters.data.maxElapsedTime) {
+    if (req.query.maxElapsedTime) {
       sessions = sessions.filter(
-        (session) => session.elapsedTime <= filters.data.maxElapsedTime!,
+        (session) => session.elapsedTime <= req.query.maxElapsedTime!,
       );
     }
-    if (filters.data.minTotalDist) {
+    if (req.query.minTotalDist) {
       sessions = sessions.filter(
-        (session) => session.totalDistanceGps >= filters.data.minTotalDist!,
+        (session) => session.totalDistanceGps >= req.query.minTotalDist!,
       );
     }
-    if (filters.data.maxTotalDist) {
+    if (req.query.maxTotalDist) {
       sessions = sessions.filter(
-        (session) => session.totalDistanceGps <= filters.data.maxTotalDist!,
+        (session) => session.totalDistanceGps <= req.query.maxTotalDist!,
       );
     }
-    if (filters.data.minStrokeCount) {
+    if (req.query.minStrokeCount) {
       sessions = sessions.filter(
-        (session) => session.totalStrokeCount >= filters.data.minStrokeCount!,
+        (session) => session.totalStrokeCount >= req.query.minStrokeCount!,
       );
     }
-    if (filters.data.maxStrokeCount) {
+    if (req.query.maxStrokeCount) {
       sessions = sessions.filter(
-        (session) => session.totalStrokeCount <= filters.data.maxStrokeCount!,
+        (session) => session.totalStrokeCount <= req.query.maxStrokeCount!,
       );
     }
-    if (filters.data.minAvgDistPerStroke) {
+    if (req.query.minAvgDistPerStroke) {
       sessions = sessions.filter(
-        (session) => session.distStrokeGps >= filters.data.minAvgDistPerStroke!,
+        (session) => session.distStrokeGps >= req.query.minAvgDistPerStroke!,
       );
     }
-    if (filters.data.maxAvgDistPerStroke) {
+    if (req.query.maxAvgDistPerStroke) {
       sessions = sessions.filter(
-        (session) => session.distStrokeGps <= filters.data.maxAvgDistPerStroke!,
+        (session) => session.distStrokeGps <= req.query.maxAvgDistPerStroke!,
       );
     }
-    if (filters.data.minAvgStrokeRate) {
+    if (req.query.minAvgStrokeRate) {
       sessions = sessions.filter(
-        (session) => session.avgStrokeRate >= filters.data.minAvgStrokeRate!,
+        (session) => session.avgStrokeRate >= req.query.minAvgStrokeRate!,
       );
     }
-    if (filters.data.maxAvgStrokeRate) {
+    if (req.query.maxAvgStrokeRate) {
       sessions = sessions.filter(
-        (session) => session.avgStrokeRate <= filters.data.maxAvgStrokeRate!,
+        (session) => session.avgStrokeRate <= req.query.maxAvgStrokeRate!,
       );
     }
-    if (filters.data.minAvgSpeed) {
+    if (req.query.minAvgSpeed) {
       sessions = sessions.filter(
-        (session) => session.avgSpeedGps >= filters.data.minAvgSpeed!,
+        (session) => session.avgSpeedGps >= req.query.minAvgSpeed!,
       );
     }
-    if (filters.data.maxAvgSpeed) {
+    if (req.query.maxAvgSpeed) {
       sessions = sessions.filter(
-        (session) => session.avgSpeedGps <= filters.data.maxAvgSpeed!,
+        (session) => session.avgSpeedGps <= req.query.maxAvgSpeed!,
       );
     }
-    if (filters.data.startTimeMin) {
+    if (req.query.minStartTime) {
       sessions = sessions.filter(
-        (session) => session.startTime >= filters.data.startTimeMin!.getTime(),
+        (session) => session.startTime >= req.query.minStartTime!.getTime(),
       );
     }
-    if (filters.data.startTimeMax) {
+    if (req.query.maxStartTime) {
       sessions = sessions.filter(
-        (session) => session.startTime <= filters.data.startTimeMax!.getTime()!,
+        (session) => session.startTime <= req.query.maxStartTime!.getTime()!,
       );
     }
-    if (filters.data.startGpsLatMin) {
+    if (req.query.minStartGpsLat) {
       sessions = sessions.filter(
-        (session) => session.startGpsLat >= filters.data.startGpsLatMin!,
+        (session) => session.startGpsLat >= req.query.minStartGpsLat!,
       );
     }
-    if (filters.data.startGpsLatMax) {
+    if (req.query.maxStartGpsLat) {
       sessions = sessions.filter(
-        (session) => session.startGpsLat <= filters.data.startGpsLatMax!,
+        (session) => session.startGpsLat <= req.query.maxStartGpsLat!,
       );
     }
-    if (filters.data.startGpsLonMin) {
+    if (req.query.minStartGpsLon) {
       sessions = sessions.filter(
-        (session) => session.startGpsLon >= filters.data.startGpsLonMin!,
+        (session) => session.startGpsLon >= req.query.minStartGpsLon!,
       );
     }
-    if (filters.data.startGpsLonMax) {
+    if (req.query.maxStartGpsLon) {
       sessions = sessions.filter(
-        (session) => session.startGpsLon <= filters.data.startGpsLonMax!,
+        (session) => session.startGpsLon <= req.query.maxStartGpsLon!,
       );
     }
 
     // Finally, send the data back over the wire
     res.status(200).send({
       sessions: sessions.map((session) => iSessionToSessionResponse(session)),
-    } satisfies z.infer<typeof GetSessionsResponse>);
+    });
   },
 );
 
 // Endpoint to get a singular session ID data
 router.get(
   "/:accountId/data/sessions/:sessionId",
-  validateHasId("accountId"),
-  validateHasId("sessionId"),
-  // Using express 5 with express 4 types, safe to ignore
+  // Using asyncify, safe to ignore
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  async function (req: Request, res: Response): Promise<void> {
+  async function (req, res): Promise<void> {
     // Get the sessions
     let sessions = await fetchSessions(
-      await getAccessToken(parseInt(req.params.accountId)),
+      await getAccessToken(req.params.accountId),
     );
 
     sessions = sessions.filter(
-      (session) => session.id == parseInt(req.params.sessionId),
+      (session) => session.id == req.params.sessionId,
     );
 
     // If we didn't find a session with that ID, just 404 it
     if (sessions.length == 0) {
-      res.sendStatus(404);
+      res.status(404).send({
+        message: "Could not find session with ID " + req.params.sessionId
+      });
       return;
     }
 
@@ -442,4 +444,5 @@ router.get(
   },
 );
 
-export default router;
+// This is the only way to make typescript happy and let this export :)
+export default router as unknown as Router;

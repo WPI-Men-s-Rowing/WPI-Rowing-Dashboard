@@ -1,13 +1,19 @@
-import { IErrorResponse } from "api-schema";
+import { zodiosApp } from "@zodios/express";
+import apiSchema from "api-schema";
+import { error } from "api-schema/components";
 import cookieParser from "cookie-parser";
-import express, { Express, NextFunction, Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
+import asyncify from "express-asyncify";
 import helmet from "helmet";
 import createError, { HttpError } from "http-errors";
 import logger from "morgan";
+import { z } from "zod";
 import rateLimiter from "./middleware/rateLimiter.js";
 import nkAccountsRouter from "./routes/nk-accounts.ts";
 
-const app: Express = express(); // Set up the backend
+const app = zodiosApp(apiSchema, {
+  express: asyncify(express()),
+}); // Set up the backend
 
 // Security settings/middlewares
 app.use(helmet()); // Use helmet for security
@@ -60,20 +66,8 @@ app.use(function (
         process.env.NODE_ENV != "production" && err.stack
           ? err.stack
           : err.message,
-    } satisfies IErrorResponse);
+    } satisfies z.infer<typeof error>);
 });
 
-// Generic 404 handler
-app.use(
-  (
-    req: Request,
-    res: Response,
-    // Express gets cranky, so we need this param
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _: NextFunction,
-  ) => {
-    res.sendStatus(404); // Send a 404
-  },
-);
-
-export default app; // Export the backend, so that www.ts can start it
+// This is the only way to make typescript happy and let this export :)
+export default app as Express.Application; // Export the backend, so that www.ts can start it
