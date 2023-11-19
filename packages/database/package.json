@@ -3,7 +3,10 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    ".": "./src/client.ts",
+    ".": {
+      "node": "./src/client.ts",
+      "default": "./src/browser.ts"
+    },
     "./zod": "./src/zod.ts"
   },
   "files": [
