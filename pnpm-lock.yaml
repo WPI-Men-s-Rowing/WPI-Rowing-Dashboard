@@ -73,6 +73,12 @@ importers:
       fastify:
         specifier: ^4.24.3
         version: 4.24.3
+      fastify-graceful-shutdown:
+        specifier: ^3.5.1
+        version: 3.5.1
+      fastify-healthcheck:
+        specifier: ^4.4.0
+        version: 4.4.0
       fastify-plugin:
         specifier: ^4.5.1
         version: 4.5.1
@@ -85,6 +91,12 @@ importers:
       ts-node:
         specifier: ^10.9.1
         version: 10.9.1(@swc/core@1.3.96)(@types/node@20.8.10)(typescript@5.2.2)
+      tsconfig:
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      typescript:
+        specifier: ^5.0.2
+        version: 5.2.2
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -110,12 +122,6 @@ importers:
       nodemon:
         specifier: ^3.0.1
         version: 3.0.1
-      tsconfig:
-        specifier: workspace:*
-        version: link:../../packages/tsconfig
-      typescript:
-        specifier: ^5.0.2
-        version: 5.2.2
 
   apps/frontend:
     dependencies:
@@ -835,6 +841,16 @@ packages:
       yaml: 2.3.4
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /@fastify/under-pressure@8.3.0:
+    resolution:
+      {
+        integrity: sha512-ap1EePB9vHm8uQLM0nnaOeIMBLooNmAMTnccavBRwaXmu+acJFuSEQRVdMGRkW6viFDhdo5RGTcHzMBQyrucEA==,
+      }
+    dependencies:
+      "@fastify/error": 3.4.1
+      fastify-plugin: 4.5.1
     dev: false
 
   /@humanwhocodes/config-array@0.11.13:
@@ -4045,6 +4061,27 @@ packages:
       }
     dev: false
 
+  /fastify-graceful-shutdown@3.5.1:
+    resolution:
+      {
+        integrity: sha512-fNwwCn8ob+Ykjg1iFgQrhbxNryXxUAGWD8yxz93gUgwAFgavd7rsOO/RN1oQskzltWBjWTB2KAqeF8q4XrJIkA==,
+      }
+    engines: { node: ">=16.0.0" }
+    dependencies:
+      fastify-plugin: 4.5.1
+      fastparallel: 2.4.1
+    dev: false
+
+  /fastify-healthcheck@4.4.0:
+    resolution:
+      {
+        integrity: sha512-goP2YYBp+inqrEFixZDxsoxFN8h219ZOzCFv1sMpleaxwbo5CmoLrVzrja6vCMa1LNx6aEvOcGaqLX5Oev1q/A==,
+      }
+    engines: { node: ">=14.15.0" }
+    dependencies:
+      "@fastify/under-pressure": 8.3.0
+    dev: false
+
   /fastify-plugin@4.5.1:
     resolution:
       {
@@ -4076,6 +4113,16 @@ packages:
       toad-cache: 3.3.0
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /fastparallel@2.4.1:
+    resolution:
+      {
+        integrity: sha512-qUmhxPgNHmvRjZKBFUNI0oZuuH9OlSIOXmJ98lhKPxMZZ7zS/Fi0wRHOihDSz0R1YiIOjxzOY4bq65YTcdBi2Q==,
+      }
+    dependencies:
+      reusify: 1.0.4
+      xtend: 4.0.2
     dev: false
 
   /fastq@1.15.0:
@@ -9044,6 +9091,14 @@ packages:
       utf-8-validate:
         optional: true
     dev: true
+
+  /xtend@4.0.2:
+    resolution:
+      {
+        integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==,
+      }
+    engines: { node: ">=0.4" }
+    dev: false
 
   /y18n@5.0.8:
     resolution:

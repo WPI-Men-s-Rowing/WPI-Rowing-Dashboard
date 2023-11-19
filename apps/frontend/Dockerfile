@@ -15,7 +15,7 @@ RUN apk update
 WORKDIR /app
 RUN pnpm i turbo --global
 COPY . .
-RUN turbo prune backend --docker
+RUN turbo prune frontend --docker
 
 # Install packages based on the reduced inputs from the reducer
 FROM base AS installer
@@ -38,24 +38,22 @@ FROM installer AS builder
 RUN pnpm build
 
 FROM base AS runner
+RUN pnpm install serve --global
 WORKDIR /app
 
 # Don't run production as root
-RUN addgroup --system --gid 1001 backend
-RUN adduser --system --uid 1001 backend
+RUN addgroup --system --gid 1001 frontend
+RUN adduser --system --uid 1001 frontend
 USER backend
-COPY --from=builder /app .
-
-# Now go to the backend app and run everything
-WORKDIR /app/apps/backend
+COPY --from=builder /apps/frontend/dist .
 
 # This container must expose said port
-EXPOSE 3000
+EXPOSE 80
 
 # Healthceck to determine if we're actually still serving stuff, just attempt to get the URL
 # If that fails, try exiting gracefully (SIGTERM), and if that fails force the container to die with SIGKILL.
 # This will invoke the restart policy, allowing compose to automatically rebuild the container
-HEALTHCHECK CMD wget --spider localhost:3000/health || bash -c 'kill -s 15 -1 && (sleep 10; kill -s 9 -1)'
+HEALTHCHECK CMD wget --spider localhost || bash -c 'kill -s 15 -1 && (sleep 10; kill -s 9 -1)'
 
 # Now, simply run the prod
-CMD node --loader ts-node/esm src/app.ts
+CMD serve . -s

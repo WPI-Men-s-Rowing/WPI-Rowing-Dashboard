@@ -5,6 +5,8 @@ import { initServer } from "@ts-rest/fastify";
 import { generateOpenApi } from "@ts-rest/open-api";
 import contract from "api-schema";
 import Fastify from "fastify";
+import fastifyGracefulShutdown from "fastify-graceful-shutdown";
+import fastifyHealthcheck from "fastify-healthcheck";
 import nkAccountsRouter from "./routes/nk-accounts.ts";
 
 // Create the fastify server
@@ -14,6 +16,12 @@ const fastify = Fastify({
 
 // Add the rate limiter
 await fastify.register(fastifyRateLimit);
+
+// Add the healthcheck
+await fastify.register(fastifyHealthcheck);
+
+// Add the graceful shutdown system
+await fastify.register(fastifyGracefulShutdown);
 
 // Setup the ts-rest schema
 const schemaServer = initServer();
