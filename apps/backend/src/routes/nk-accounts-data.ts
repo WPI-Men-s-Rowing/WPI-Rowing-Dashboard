@@ -405,7 +405,7 @@ function iSessionToSessionResponse(
               avgStrokeRate: interval.avgStrokeRate,
               avgSpeed: interval.avgSpeedGps,
               startTime: new Date(interval.startTime),
-              elapsedTime: interval.elapsedTime,
+              duration: interval.elapsedTime,
               strokeCount: interval.totalStrokeCount,
               startGpsLat: interval.startGpsLat,
               startGpsLon: interval.startGpsLon,

@@ -51,15 +51,15 @@ export interface ISingularSessionResponse {
   speedInput: 0 | 1; // Where speed is coming from, 0 for GPS, 1 for impeller
   startTime: number; // Start time in MS since the epoch in the time zone this was recorded in (ew)
   endTime: number; // End time in MS since the epoch in the time zone this was recorded in (ew)
-  location: string; // Human-readable string where the data was recorded from
-  deviceId: number; // The device ID this was recorded on
+  location: string | null; // Human-readable string where the data was recorded from. Can be null for some reason?
+  deviceId: number | null; // The device ID this was recorded on. Can be null for some reason
   intervals: // Intervals for the session.
   // Unless the session type is 3 (see above), this will have one field containing identical data to the above.
   // Thanks NK!
   {
-    elapsedTime: number; // Total elapsed time, in MS, to this point
-    totalDistanceImp: number; // Distance in the session with an impeller used for data
-    totalDistanceGps: number; // Distance in the session with the GPS used for data
+    elapsedTime: number; // Interval duration in MS
+    totalDistanceImp: number; // Interval distance in meters
+    totalDistanceGps: number; // Interval distance in meters
     avgPaceImp: number; // Average pace (in ms/500m) with the impeller
     avgPaceGps: number; // Average pace (in ms/500m) with the GPS
     avgStrokeRate: number; // Average stroke rate in strokes/min
@@ -226,7 +226,7 @@ export async function fetchStrokes(
         sessionIds: sessions,
       } satisfies ISessionStrokesRequestUrlParams,
       paramsSerializer: (params) =>
-        qs.stringify(params, { arrayFormat: "brackets" }),
+        qs.stringify(params, { arrayFormat: "comma" }),
       baseURL: SESSIONS_URL_BASE,
       headers: {
         Authorization: `Bearer ${accessToken}`,

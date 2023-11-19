@@ -63,7 +63,7 @@ export default contract.router(
         /**
          * @type {number} - the unique account ID of the user
          */
-        id: z.number(),
+        id: z.coerce.number(),
       }),
       responses: {
         200: nKAccount,
@@ -85,15 +85,15 @@ export default contract.router(
       method: "DELETE",
       path: "/:id",
       description: "Delete an NK account by its ID",
-      body: z.undefined(),
+      body: z.strictObject({}), // Use an empty object (nothing) for the body
       pathParams: z.strictObject({
         /**
          * @type {number} - the ID of the account to delete
          */
-        id: z.number(),
+        id: z.coerce.number(),
       }),
       responses: {
-        200: z.undefined(),
+        204: z.strictObject({}), // Return an empty object
         404: notFoundError,
       },
     },
@@ -105,7 +105,7 @@ export default contract.router(
         /**
          * @type {number} - the ID of the NK account to delete
          */
-        id: z.number(),
+        id: z.coerce.number(),
       }),
       body: z.strictObject({
         /**
@@ -124,5 +124,7 @@ export default contract.router(
     },
     data: nkAccountsData,
   },
-  {},
+  {
+    pathPrefix: "/nk-accounts",
+  },
 );

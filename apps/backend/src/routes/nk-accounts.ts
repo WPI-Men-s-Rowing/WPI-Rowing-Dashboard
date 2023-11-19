@@ -57,7 +57,8 @@ export default server.router(contract.nkAccounts, {
     } else {
       // Otherwise, send OK
       return {
-        status: 200,
+        status: 204,
+        body: {},
       };
     }
   },

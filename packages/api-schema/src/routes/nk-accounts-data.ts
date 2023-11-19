@@ -62,9 +62,9 @@ export const session = z.strictObject({
    */
   description: z.string(),
   /**
-   * @type {string} - human-readable location description
+   * @type {string | null} - human-readable location description
    */
-  locationDescription: z.string(),
+  locationDescription: z.string().nullable(),
   /**
    * @type {number} - total distance covered in the session
    */
@@ -106,9 +106,9 @@ export const session = z.strictObject({
    */
   startGpsLon: z.number(),
   /**
-   * @type {number} - the ID of the device used to capture the session
+   * @type {number | null} - the ID of the device used to capture the session
    */
-  deviceId: z.number(),
+  deviceId: z.number().nullable(),
   /**
    * @type {Array} - if the session type is intervals, this will have the recorded intervals. Otherwise, this will be empty
    */
@@ -119,7 +119,7 @@ export const session = z.strictObject({
        */
       id: z.number(),
       /**
-       * @type {number} - total distance covered up to this point (meters)
+       * @type {number} - total distance covered in the interval
        */
       distance: z.number(),
       /**
@@ -139,9 +139,9 @@ export const session = z.strictObject({
        */
       startTime: z.date(),
       /**
-       * @type {number} - time elapsed to the start of this interval in MS
+       * @type {number} - the time of the interval
        */
-      elapsedTime: z.number(),
+      duration: z.number(),
       /**
        * @type {number} the number of strokes taken in the interval
        */
@@ -217,11 +217,11 @@ export default contract.router(
         /**
          * @type {number} - the account ID
          */
-        accountId: z.number(),
+        accountId: z.coerce.number(),
         /**
          * @type {number} - the session ID
          */
-        sessionId: z.number(),
+        sessionId: z.coerce.number(),
       }),
     },
     getSessions: {
@@ -238,89 +238,89 @@ export default contract.router(
         /**
          * @type {number} - the account ID
          */
-        accountId: z.number(),
+        accountId: z.coerce.number(),
       }),
       query: z.strictObject({
         /**
          * @type {number} - minimum session length (ms) to include in responses
          */
-        minElapsedTime: z.number().optional(),
+        minElapsedTime: z.coerce.number().optional(),
         /**
          * @type {number} - maximum session length (ms) to include in responses
          */
-        maxElapsedTime: z.number().optional(),
+        maxElapsedTime: z.coerce.number().optional(),
         /**
          * @type {number} - minimum total distance (meters) to include in responses
          */
-        minTotalDist: z.number().optional(),
+        minTotalDist: z.coerce.number().optional(),
         /**
          * @type {number} - maximum total distance (meters) to include in responses
          */
-        maxTotalDist: z.number().optional(),
+        maxTotalDist: z.coerce.number().optional(),
         /**
          * @type {number} - minimum stroke count to include in responses
          */
-        minStrokeCount: z.number().optional(),
+        minStrokeCount: z.coerce.number().optional(),
         /**
          * @type {number} - maximum stroke count to include in responses
          */
-        maxStrokeCount: z.number().optional(),
+        maxStrokeCount: z.coerce.number().optional(),
         /**
          * @type {number} - minimum average distance per stroke (meters/stroke) to include in responses
          */
-        minAvgDistPerStroke: z.number().optional(),
+        minAvgDistPerStroke: z.coerce.number().optional(),
         /**
          * @type {number} - maximum average distance per stroke (meters/stroke) to include in responses
          */
-        maxAvgDistPerStroke: z.number().optional(),
+        maxAvgDistPerStroke: z.coerce.number().optional(),
         /**
          * @type {number} - minimum average stroke rate (strokes/minute) to include in responses
          */
-        minAvgStrokeRate: z.number().optional(),
+        minAvgStrokeRate: z.coerce.number().optional(),
         /**
          * @type {number} - maximum average stroke rate (strokes/minute) to include in responses
          */
-        maxAvgStrokeRate: z.number().optional(),
+        maxAvgStrokeRate: z.coerce.number().optional(),
         /**
          * @type {number} - minimum average speed (meters/second) to include in responses
          */
-        minAvgSpeed: z.number().optional(),
+        minAvgSpeed: z.coerce.number().optional(),
         /**
          * @type {number} - maximum average speed (meters/second) to include in responses
          */
-        maxAvgSpeed: z.number().optional(),
+        maxAvgSpeed: z.coerce.number().optional(),
         /**
          * @type {Date} - minimum start time to include in responses. Sessions will be compared as if they are in Z time
          */
-        minStartTime: z.date().optional(),
+        minStartTime: z.coerce.date().optional(),
         /**
          * @type {Date} - maximum start time to include in responses. Sessions will be compared as if they are in Z time
          */
-        maxStartTime: z.date().optional(),
+        maxStartTime: z.coerce.date().optional(),
         /**
          * @type {Date} - minimum end time to include in responses. Sessions will be compared as if they are in Z time
          */
-        minEndTime: z.date().optional(),
+        minEndTime: z.coerce.date().optional(),
         /**
          * @type {Date} - maximum end time to include in responses. Sessions will be compared as if they are in Z time
          */
-        maxEndTime: z.date().optional(),
+        maxEndTime: z.coerce.date().optional(),
         /**
          * @type {number} - minimum starting GPS latitude to include in responses
          */
-        minStartGpsLat: z.number().optional(),
+        minStartGpsLat: z.coerce.number().optional(),
         /**
          * @type {number} - maximum starting GPS latitude to include in responses
          */
-        maxStartGpsLat: z.number().optional(),
+        maxStartGpsLat: z.coerce.number().optional(),
         /**
          * @type {number} - minimum starting GPS longitude to include in responses
          */
-        minStartGpsLon: z.number().optional(),
+        minStartGpsLon: z.coerce.number().optional(),
         /**
          * @type {number} - maximum starting GPS longitude to include in responses
          */
-        maxStartGpsLon: z.number().optional(),
+        maxStartGpsLon: z.coerce.number().optional(),
       }),
     },
     getSessionStrokes: {
@@ -337,11 +337,11 @@ export default contract.router(
         /**
          * @type {number} - the account ID
          */
-        accountId: z.number(),
+        accountId: z.coerce.number(),
         /**
          * @type {number} - the session ID
          */
-        sessionId: z.number(),
+        sessionId: z.coerce.number(),
       }),
     },
     getSessionStroke: {
@@ -353,15 +353,15 @@ export default contract.router(
         /**
          * @type {number} - the account ID
          */
-        accountId: z.number(),
+        accountId: z.coerce.number(),
         /**
          * @type {number} - the session ID
          */
-        sessionId: z.number(),
+        sessionId: z.coerce.number(),
         /**
          * @type {number} - the stroke ID
          */
-        strokeId: z.number(),
+        strokeId: z.coerce.number(),
       }),
     },
     getDevice: {
@@ -373,11 +373,11 @@ export default contract.router(
         /**
          * @type {number} - the account ID
          */
-        accountId: z.number(),
+        accountId: z.coerce.number(),
         /**
          * @type {number} - the device ID
          */
-        deviceId: z.number(),
+        deviceId: z.coerce.number(),
       }),
     },
     getDevices: {
@@ -394,7 +394,7 @@ export default contract.router(
         /**
          * @type {number} - the account ID
          */
-        accountId: z.number(),
+        accountId: z.coerce.number(),
       }),
     },
   },
