@@ -1,42 +1,46 @@
-import { PostNkAccountsRequest } from "api-schema";
-import axios, { AxiosResponse } from "axios";
+import { initQueryClient } from "@ts-rest/react-query";
+import contract from "api-schema";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import HttpsRedirect from "react-https-redirect";
-import { z } from "zod";
 import App from "./App.tsx";
+import QueryClientContext from "./QueryClientContext.ts";
 import "./index.css";
 import NkAuthProvider from "./nk-auth/NkAuthProvider.tsx";
+
+const queryClient = initQueryClient(contract, {
+  baseUrl: "",
+  baseHeaders: {},
+});
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <HttpsRedirect disabled={import.meta.env.DEV}>
-      <NkAuthProvider
-        redirectCallback={(state, code) => {
-          console.log(state);
+      <QueryClientContext.Provider value={queryClient}>
+        <NkAuthProvider
+          redirectCallback={(state, code) => {
+            console.log(state);
 
-          if (state.firstName == undefined || state.lastName == undefined) {
-            console.log("state error");
-            return;
-          }
+            if (state.firstName == undefined || state.lastName == undefined) {
+              console.log("state error");
+              return;
+            }
 
-          // Post the auth code
-          type PostAuthCodeType = z.infer<typeof PostNkAccountsRequest>;
-          void axios.post<
-            PostAuthCodeType,
-            AxiosResponse<Record<string, never>>
-          >("/api/nk-accounts", {
-            firstName: state.firstName!,
-            lastName: state.lastName!,
-            code: code,
-          } satisfies PostAuthCodeType);
-        }}
-        redirectError={() => {
-          console.log("error");
-        }}
-      >
-        <App />
-      </NkAuthProvider>
+            void queryClient.nkAccounts.postNkAccount.mutation({
+              body: {
+                firstName: state.firstName,
+                lastName: state.lastName,
+                code: code,
+              },
+            });
+          }}
+          redirectError={() => {
+            console.log("error");
+          }}
+        >
+          <App />
+        </NkAuthProvider>
+      </QueryClientContext.Provider>
     </HttpsRedirect>
   </React.StrictMode>,
 );

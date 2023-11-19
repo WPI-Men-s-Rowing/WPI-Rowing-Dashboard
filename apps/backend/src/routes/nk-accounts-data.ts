@@ -1,13 +1,7 @@
-import {
-  GetDevicesResponse,
-  GetStrokesResponse,
-  nkAccountsData
-} from "api-schema";
-import {device as APIDevice, session as APISession, stroke as APIStroke} from "api-schema/components";
+import { ServerInferResponseBody } from "@ts-rest/core";
+import { initServer } from "@ts-rest/fastify";
+import contract from "api-schema";
 import { prisma } from "database";
-import { NextFunction, Request, Response, Router } from "express";
-import { z } from "zod";
-import { validateHasId } from "../middleware/validateHasId.ts";
 import {
   IDevicesByIdResponse,
   getAllDevices,
@@ -20,8 +14,315 @@ import {
   fetchSessions,
   fetchStrokes,
 } from "../nk/sessions.ts";
-import { zodiosRouter } from "@zodios/express";
-import asyncify from "express-asyncify";
+
+// Create a server to use with the data
+const server = initServer();
+
+export default server.router(contract.nkAccounts.data, {
+  getSessions: async ({ query, params }) => {
+    // Validate the target account
+    if (
+      !(await prisma.nkCredential.findUnique({
+        where: {
+          userId: params.accountId,
+        },
+      }))
+    ) {
+      return {
+        status: 404,
+        body: {
+          key: "accountId",
+        },
+      };
+    }
+
+    // Get the sessions
+    let sessions = await fetchSessions(
+      await getAccessToken(params.accountId),
+      query.maxEndTime,
+      query.minEndTime,
+    );
+
+    // Now, apply the filters
+    if (query.minElapsedTime) {
+      sessions = sessions.filter(
+        (session) => session.elapsedTime >= query.minElapsedTime!,
+      );
+    }
+    if (query.maxElapsedTime) {
+      sessions = sessions.filter(
+        (session) => session.elapsedTime <= query.maxElapsedTime!,
+      );
+    }
+    if (query.minTotalDist) {
+      sessions = sessions.filter(
+        (session) => session.totalDistanceGps >= query.minTotalDist!,
+      );
+    }
+    if (query.maxTotalDist) {
+      sessions = sessions.filter(
+        (session) => session.totalDistanceGps <= query.maxTotalDist!,
+      );
+    }
+    if (query.minStrokeCount) {
+      sessions = sessions.filter(
+        (session) => session.totalStrokeCount >= query.minStrokeCount!,
+      );
+    }
+    if (query.maxStrokeCount) {
+      sessions = sessions.filter(
+        (session) => session.totalStrokeCount <= query.maxStrokeCount!,
+      );
+    }
+    if (query.minAvgDistPerStroke) {
+      sessions = sessions.filter(
+        (session) => session.distStrokeGps >= query.minAvgDistPerStroke!,
+      );
+    }
+    if (query.maxAvgDistPerStroke) {
+      sessions = sessions.filter(
+        (session) => session.distStrokeGps <= query.maxAvgDistPerStroke!,
+      );
+    }
+    if (query.minAvgStrokeRate) {
+      sessions = sessions.filter(
+        (session) => session.avgStrokeRate >= query.minAvgStrokeRate!,
+      );
+    }
+    if (query.maxAvgStrokeRate) {
+      sessions = sessions.filter(
+        (session) => session.avgStrokeRate <= query.maxAvgStrokeRate!,
+      );
+    }
+    if (query.minAvgSpeed) {
+      sessions = sessions.filter(
+        (session) => session.avgSpeedGps >= query.minAvgSpeed!,
+      );
+    }
+    if (query.maxAvgSpeed) {
+      sessions = sessions.filter(
+        (session) => session.avgSpeedGps <= query.maxAvgSpeed!,
+      );
+    }
+    if (query.minStartTime) {
+      sessions = sessions.filter(
+        (session) => session.startTime >= query.minStartTime!.getTime(),
+      );
+    }
+    if (query.maxStartTime) {
+      sessions = sessions.filter(
+        (session) => session.startTime <= query.maxStartTime!.getTime()!,
+      );
+    }
+    if (query.minStartGpsLat) {
+      sessions = sessions.filter(
+        (session) => session.startGpsLat >= query.minStartGpsLat!,
+      );
+    }
+    if (query.maxStartGpsLat) {
+      sessions = sessions.filter(
+        (session) => session.startGpsLat <= query.maxStartGpsLat!,
+      );
+    }
+    if (query.minStartGpsLon) {
+      sessions = sessions.filter(
+        (session) => session.startGpsLon >= query.minStartGpsLon!,
+      );
+    }
+    if (query.maxStartGpsLon) {
+      sessions = sessions.filter(
+        (session) => session.startGpsLon <= query.maxStartGpsLon!,
+      );
+    }
+
+    // Finally, send the data back over the wire
+    return {
+      status: 200,
+      body: {
+        sessions: sessions.map((session) => iSessionToSessionResponse(session)),
+      },
+    };
+  },
+  getSession: async ({ params }) => {
+    // Validate the target account
+    if (
+      !(await prisma.nkCredential.findUnique({
+        where: {
+          userId: params.accountId,
+        },
+      }))
+    ) {
+      return {
+        status: 404,
+        body: {
+          key: "accountId",
+        },
+      };
+    }
+
+    // Get the sessions
+    let sessions = await fetchSessions(await getAccessToken(params.accountId));
+
+    sessions = sessions.filter((session) => session.id == params.sessionId);
+
+    // If we didn't find a session with that ID, just 404 it
+    if (sessions.length == 0) {
+      return {
+        status: 404,
+        body: {
+          key: "sessionId",
+        },
+      };
+    }
+
+    // Process and send the final session
+    return {
+      status: 200,
+      body: iSessionToSessionResponse(sessions[0]),
+    };
+  },
+  getSessionStrokes: async ({ params }) => {
+    // Validate the target account
+    if (
+      !(await prisma.nkCredential.findUnique({
+        where: {
+          userId: params.accountId,
+        },
+      }))
+    ) {
+      return {
+        status: 404,
+        body: {
+          key: "accountId",
+        },
+      };
+    }
+
+    // Get the sessions
+    let sessions = await fetchSessions(await getAccessToken(params.accountId));
+
+    sessions = sessions.filter((session) => session.id == params.sessionId);
+
+    // If we didn't find a session with that ID, just 404 it
+    if (sessions.length == 0) {
+      return {
+        status: 404,
+        body: {
+          key: "sessionId",
+        },
+      };
+    }
+
+    // Get the session strokes for the provided session
+    const sessionStrokes = await fetchStrokes(
+      await getAccessToken(params.accountId),
+      [sessions[0].id],
+    );
+
+    // Send the session strokes
+    return {
+      status: 200,
+      body: {
+        strokes: sessionStrokes[sessions[0].id].map((stroke) =>
+          iSessionStrokeToStrokeResponse(stroke),
+        ),
+      },
+    };
+  },
+  getSessionStroke: async ({ params }) => {
+    // Validate the users account
+    if (
+      !(await prisma.nkCredential.findUnique({
+        where: {
+          userId: params.accountId,
+        },
+      }))
+    ) {
+      return {
+        status: 404,
+        body: {
+          key: "accountId",
+        },
+      };
+    }
+
+    // Get the sessions
+    let sessions = await fetchSessions(await getAccessToken(params.accountId));
+
+    sessions = sessions.filter((session) => session.id == params.sessionId);
+
+    // If we didn't find a session with that ID, just 404 it
+    if (sessions.length == 0) {
+      return {
+        status: 404,
+        body: {
+          key: "sessionId",
+        },
+      };
+    }
+
+    // Get the session strokes for the provided session
+    const sessionStrokes = (
+      await fetchStrokes(await getAccessToken(params.accountId), [
+        sessions[0].id,
+      ])
+    )[sessions[0].id].filter((stroke) => stroke.id == params.strokeId);
+
+    // If the provided stroke ID doesn't exist, send 404
+    if (sessionStrokes.length == 0) {
+      return {
+        status: 404,
+        body: {
+          key: "strokeId",
+        },
+      };
+    }
+
+    // Send off the stroke now that we have it
+    return {
+      status: 200,
+      body: iSessionStrokeToStrokeResponse(sessionStrokes[0]),
+    };
+  },
+  getDevices: async ({ params }) => {
+    // Validate the target account
+    if (
+      !(await prisma.nkCredential.findUnique({
+        where: {
+          userId: params.accountId,
+        },
+      }))
+    ) {
+      return {
+        status: 404,
+        body: {
+          key: "accountId",
+        },
+      };
+    }
+
+    // Get all the devices
+    const devices = await getAllDevices(await getAccessToken(params.accountId));
+
+    // Send the devices off
+    return {
+      status: 200,
+      body: {
+        devices: devices.map((device) => iDeviceToDeviceResponse(device)),
+      },
+    };
+  },
+  getDevice: async ({ params }) => {
+    // Get all the devices
+    const device = await getDevice(
+      await getAccessToken(params.accountId),
+      params.deviceId,
+    );
+
+    // Send the devices off
+    return { status: 200, body: iDeviceToDeviceResponse(device) };
+  },
+});
 
 /**
  * Gets tha access token for a given user ID, refreshing using the refresh token
@@ -78,7 +379,7 @@ async function getAccessToken(userId: number): Promise<string> {
  */
 function iSessionToSessionResponse(
   session: ISingularSessionResponse,
-): z.infer<typeof APISession> {
+): ServerInferResponseBody<typeof contract.nkAccounts.data.getSession, 200> {
   return {
     id: session.id,
     description: session.name,
@@ -121,7 +422,10 @@ function iSessionToSessionResponse(
  */
 function iSessionStrokeToStrokeResponse(
   stroke: ISingularSessionSingularStrokeResponse,
-): z.infer<typeof APIStroke> {
+): ServerInferResponseBody<
+  typeof contract.nkAccounts.data.getSessionStroke,
+  200
+> {
   return {
     id: stroke.id,
     timestamp: new Date(stroke.timestamp),
@@ -136,11 +440,6 @@ function iSessionStrokeToStrokeResponse(
   };
 }
 
-// TODO:
-// fix this mess of a route
-// add openapi
-// see if we can get better error typing working?
-
 /**
  * Function to convert an IDeviceByIdResponse object (from NK) to a GetDeviceResponse object
  * @param device the IDeviceByResponse object to convert
@@ -148,12 +447,19 @@ function iSessionStrokeToStrokeResponse(
  */
 function iDeviceToDeviceResponse(
   device: IDevicesByIdResponse,
-): z.infer<typeof APIDevice> {
-  let deviceType: z.infer<typeof APIDevice.shape.type>;
+): ServerInferResponseBody<typeof contract.nkAccounts.data.getDevice, 200> {
+  let deviceType: ServerInferResponseBody<
+    typeof contract.nkAccounts.data.getDevice,
+    200
+  >["type"];
   if (device.type == 1) {
-    deviceType = APIDevice.shape.type.enum.SpeedCoach;
+    deviceType =
+      contract.nkAccounts.data.getDevice.responses["200"].shape.type.enum
+        .SpeedCoach;
   } else if (device.type == 2) {
-    deviceType = APIDevice.shape.type.enum.CoxBox;
+    deviceType =
+      contract.nkAccounts.data.getDevice.responses["200"].shape.type.enum
+        .SpeedCoach;
   } else {
     throw new Error("Invalid NK Device Type");
   }
@@ -170,279 +476,3 @@ function iDeviceToDeviceResponse(
     profileVersion: device.manufacturerName,
   };
 }
-
-// Router for NK account data. Assumes to be mounted somewhere that has :id as a path parameter
-const router = zodiosRouter(nkAccountsData, {
-  router: asyncify(Router())
-});
-
-// Handler to get all sessions associated with this account, based on filters
-router.get(
-  "/:accountId/data/sessions",
-  // Using asyncify, safe to ignore
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  async function (req, res): Promise<void> {
-    if (!(await prisma.nkCredential.findUnique({
-      where: {
-        userId: req.params.accountId
-      }
-    }))) {
-      res.status(404).send({message: "Invalid account ID"});
-      return;
-    }
-
-    // Get the sessions
-    let sessions = await fetchSessions(
-      await getAccessToken(req.params.accountId),
-      req.query.maxEndTime,
-      req.query.minEndTime,
-    );
-
-    // Now, apply the filters
-    if (req.query.minElapsedTime) {
-      sessions = sessions.filter(
-        (session) => session.elapsedTime >= req.query.minElapsedTime!,
-      );
-    }
-    if (req.query.maxElapsedTime) {
-      sessions = sessions.filter(
-        (session) => session.elapsedTime <= req.query.maxElapsedTime!,
-      );
-    }
-    if (req.query.minTotalDist) {
-      sessions = sessions.filter(
-        (session) => session.totalDistanceGps >= req.query.minTotalDist!,
-      );
-    }
-    if (req.query.maxTotalDist) {
-      sessions = sessions.filter(
-        (session) => session.totalDistanceGps <= req.query.maxTotalDist!,
-      );
-    }
-    if (req.query.minStrokeCount) {
-      sessions = sessions.filter(
-        (session) => session.totalStrokeCount >= req.query.minStrokeCount!,
-      );
-    }
-    if (req.query.maxStrokeCount) {
-      sessions = sessions.filter(
-        (session) => session.totalStrokeCount <= req.query.maxStrokeCount!,
-      );
-    }
-    if (req.query.minAvgDistPerStroke) {
-      sessions = sessions.filter(
-        (session) => session.distStrokeGps >= req.query.minAvgDistPerStroke!,
-      );
-    }
-    if (req.query.maxAvgDistPerStroke) {
-      sessions = sessions.filter(
-        (session) => session.distStrokeGps <= req.query.maxAvgDistPerStroke!,
-      );
-    }
-    if (req.query.minAvgStrokeRate) {
-      sessions = sessions.filter(
-        (session) => session.avgStrokeRate >= req.query.minAvgStrokeRate!,
-      );
-    }
-    if (req.query.maxAvgStrokeRate) {
-      sessions = sessions.filter(
-        (session) => session.avgStrokeRate <= req.query.maxAvgStrokeRate!,
-      );
-    }
-    if (req.query.minAvgSpeed) {
-      sessions = sessions.filter(
-        (session) => session.avgSpeedGps >= req.query.minAvgSpeed!,
-      );
-    }
-    if (req.query.maxAvgSpeed) {
-      sessions = sessions.filter(
-        (session) => session.avgSpeedGps <= req.query.maxAvgSpeed!,
-      );
-    }
-    if (req.query.minStartTime) {
-      sessions = sessions.filter(
-        (session) => session.startTime >= req.query.minStartTime!.getTime(),
-      );
-    }
-    if (req.query.maxStartTime) {
-      sessions = sessions.filter(
-        (session) => session.startTime <= req.query.maxStartTime!.getTime()!,
-      );
-    }
-    if (req.query.minStartGpsLat) {
-      sessions = sessions.filter(
-        (session) => session.startGpsLat >= req.query.minStartGpsLat!,
-      );
-    }
-    if (req.query.maxStartGpsLat) {
-      sessions = sessions.filter(
-        (session) => session.startGpsLat <= req.query.maxStartGpsLat!,
-      );
-    }
-    if (req.query.minStartGpsLon) {
-      sessions = sessions.filter(
-        (session) => session.startGpsLon >= req.query.minStartGpsLon!,
-      );
-    }
-    if (req.query.maxStartGpsLon) {
-      sessions = sessions.filter(
-        (session) => session.startGpsLon <= req.query.maxStartGpsLon!,
-      );
-    }
-
-    // Finally, send the data back over the wire
-    res.status(200).send({
-      sessions: sessions.map((session) => iSessionToSessionResponse(session)),
-    });
-  },
-);
-
-// Endpoint to get a singular session ID data
-router.get(
-  "/:accountId/data/sessions/:sessionId",
-  // Using asyncify, safe to ignore
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  async function (req, res): Promise<void> {
-    // Get the sessions
-    let sessions = await fetchSessions(
-      await getAccessToken(req.params.accountId),
-    );
-
-    sessions = sessions.filter(
-      (session) => session.id == req.params.sessionId,
-    );
-
-    // If we didn't find a session with that ID, just 404 it
-    if (sessions.length == 0) {
-      res.status(404).send({
-        message: "Could not find session with ID " + req.params.sessionId
-      });
-      return;
-    }
-
-    // Process and send the final session
-    res.status(200).send(iSessionToSessionResponse(sessions[0]));
-  },
-);
-
-router.get(
-  "/:accountId/data/sessions/:sessionId/strokes",
-  validateHasId("accountId"),
-  validateHasId("sessionId"),
-  // Using express 5 with express 4 types, safe to ignore
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  async function (req: Request, res: Response): Promise<void> {
-    // Get the sessions
-    let sessions = await fetchSessions(
-      await getAccessToken(parseInt(req.params.accountId)),
-    );
-
-    sessions = sessions.filter(
-      (session) => session.id == parseInt(req.params.sessionId),
-    );
-
-    // If we didn't find a session with that ID, just 404 it
-    if (sessions.length == 0) {
-      res.sendStatus(404);
-      return;
-    }
-
-    // Get the session strokes for the provided session
-    const sessionStrokes = await fetchStrokes(
-      await getAccessToken(parseInt(req.params.accountId)),
-      [sessions[0].id],
-    );
-
-    // Send the session strokes
-    res.status(200).send({
-      strokes: sessionStrokes[sessions[0].id].map((stroke) =>
-        iSessionStrokeToStrokeResponse(stroke),
-      ),
-    } satisfies z.infer<typeof GetStrokesResponse>);
-  },
-);
-
-// Endpoint to get the details on a singular stroke
-router.get(
-  "/:accountId/data/sessions/:sessionId/strokes/:strokeId",
-  validateHasId("accountId"),
-  validateHasId("sessionId"),
-  validateHasId("strokeId"),
-  // Using express 5 with express 4 types, safe to ignore
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  async function (req: Request, res: Response): Promise<void> {
-    // Get the sessions
-    let sessions = await fetchSessions(
-      await getAccessToken(parseInt(req.params.accountId)),
-    );
-
-    sessions = sessions.filter(
-      (session) => session.id == parseInt(req.params.sessionId),
-    );
-
-    // If we didn't find a session with that ID, just 404 it
-    if (sessions.length == 0) {
-      res.sendStatus(404);
-      return;
-    }
-
-    // Get the session strokes for the provided session
-    const sessionStrokes = (
-      await fetchStrokes(await getAccessToken(parseInt(req.params.accountId)), [
-        sessions[0].id,
-      ])
-    )[sessions[0].id].filter(
-      (stroke) => stroke.id == parseInt(req.params.strokeId),
-    );
-
-    // If the provided stroke ID doesn't exist, send 404
-    if (sessionStrokes.length == 0) {
-      res.sendStatus(404);
-      return;
-    }
-
-    // Send off the stroke now that we have it
-    res.status(200).send(iSessionStrokeToStrokeResponse(sessionStrokes[0]));
-  },
-);
-
-// Endpoint to get all devices on the account
-router.get(
-  "/:accountId/data/devices",
-  validateHasId("accountId"),
-  // Using express 5 with express 4 types, safe to ignore
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  async function (req: Request, res: Response): Promise<void> {
-    // Get all the devices
-    const devices = await getAllDevices(
-      await getAccessToken(parseInt(req.params.accountId)),
-    );
-
-    // Send the devices off
-    res.status(200).send({
-      devices: devices.map((device) => iDeviceToDeviceResponse(device)),
-    } satisfies z.infer<typeof GetDevicesResponse>);
-  },
-);
-
-// Endpoint to get all devices on the account
-router.get(
-  "/:accountId/data/devices/:deviceId",
-  validateHasId("accountId"),
-  validateHasId("deviceId"),
-  // Using express 5 with express 4 types, safe to ignore
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  async function (req: Request, res: Response): Promise<void> {
-    // Get all the devices
-    const device = await getDevice(
-      await getAccessToken(parseInt(req.params.accountId)),
-      parseInt(req.params.deviceId),
-    );
-
-    // Send the devices off
-    res.status(200).send(iDeviceToDeviceResponse(device));
-  },
-);
-
-// This is the only way to make typescript happy and let this export :)
-export default router as unknown as Router;
