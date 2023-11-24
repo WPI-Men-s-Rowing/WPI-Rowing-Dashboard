@@ -27,6 +27,10 @@
 # Ignore environment variables
 **/.env*
 
+# Ignore typescript
+**/*.tsbuildinfo
+
 # Ignore Docker elements
 **/Dockerfile
 docker-compose.*.yaml
+.gitignore

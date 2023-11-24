@@ -1,0 +1,53 @@
+secrets:
+  DB_PASSWORD:
+    environment: "DB_PASSWORD"
+  DB_USERNAME:
+    environment: "DB_USERNAME"
+  DB_NAME:
+    environment: "DB_NAME"
+
+services:
+  db-migrate:
+    # Grant access to the appropriate secrets. This grants runtime access
+    secrets:
+      - DB_USERNAME
+      - DB_PASSWORD
+      - DB_NAME
+    # Environment allows this to work with prebuilt images
+    environment:
+      # Pass through these environment variables that we know here without secrets
+      - NK_REDIRECT_URI=https://wpirowing.qra.us/nk-auth-redirect
+      - DB_URL=database
+    image: ghcr.io/wpi-men-s-rowing/wpi-rowing-dash-db-migrate:latest
+    build:
+      # This lets us have a nested Dockerfile and use the root context
+      context: .
+      dockerfile: packages/database/Dockerfile
+      target: runner
+      # Pull from the image cache
+      cache_from:
+        - type=registry,ref=ghcr.io/wpi-men-s-rowing/wpi-rowing-dash-db-migrate:cache
+      # Push to the image cache
+      cache_to:
+        - type=inline,ref=ghcr.io/wpi-men-s-rowing/wpi-rowing-dash-db-migrate:cache
+      # Target linux AMD64 only
+      platforms:
+        - linux/amd64
+      # Image tags
+      tags:
+        # This is where the image should go
+        - ghcr.io/wpi-men-s-rowing/wpi-rowing-dash-db-migrate:latest
+    depends_on:
+      database:
+        condition: service_healthy
+  database:
+    extends:
+      file: docker-compose.yaml
+      service: database
+    secrets:
+      - DB_USERNAME
+      - DB_PASSWORD
+      - DB_NAME
+    restart: "no"
+volumes:
+  wpi-rowing-dash-db:

@@ -64,7 +64,7 @@ export async function handleCodeExchange(
       {
         code: code,
         grant_type: "authorization_code",
-        redirect_uri: process.env.NK_REDIRECT_URI!,
+        redirect_uri: process.env.NK_REDIRECT_URI,
       } satisfies ITokenRequest,
       {
         baseURL: OAUTH_URL_BASE,

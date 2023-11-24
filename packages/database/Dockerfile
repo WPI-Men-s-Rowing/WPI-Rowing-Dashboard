@@ -1,4 +1,4 @@
-# NOTE: Although this Dockerfile is located in apps/backend, IT MUST BE RUN WITH THE CONTEXT OF THE REPO ROOT.
+# NOTE: Although this Dockerfile is located in packages/database, IT MUST BE RUN WITH THE CONTEXT OF THE REPO ROOT.
 FROM node:18-alpine AS base
 # Set various PNPM variables, so we can take advantage of the cache layer
 ENV PNPM_HOME="/pnpm"
@@ -15,7 +15,7 @@ RUN apk update
 WORKDIR /app
 RUN pnpm i turbo --global
 COPY . .
-RUN turbo prune backend --docker
+RUN turbo prune database --docker
 
 # Install packages based on the reduced inputs from the reducer
 FROM base AS installer
@@ -36,31 +36,18 @@ COPY --from=reducer /app/out/full/ .
 FROM installer AS builder
 # This will invoke the turbo build stage and build and packages that have dependencies
 RUN pnpm build
-# Remove all non-prod dependencies
-RUN pnpm prune --prod
 
 FROM base AS runner
 WORKDIR /app
 
-# Don't run production as root
-RUN addgroup --system --gid 1001 backend
-RUN adduser --system --uid 1001 backend
-USER backend
+# Copy the build output
 COPY --from=builder /app .
 
 # Now go to the backend app and run everything
-WORKDIR /app/apps/backend
-
-# This container must expose said port
-EXPOSE 3000
+WORKDIR /app/packages/database
 
 # Set the mode to production
 ENV NODE_ENV=production
 
-# Healthceck to determine if we're actually still serving stuff, just attempt to get the URL
-# If that fails, try exiting gracefully (SIGTERM), and if that fails force the container to die with SIGKILL.
-# This will invoke the restart policy, allowing compose to automatically rebuild the container
-HEALTHCHECK CMD wget --spider localhost:3000/health || bash -c 'kill -s 15 -1 && (sleep 10; kill -s 9 -1)'
-
-# Now, simply run the system. These are all secrets, the only env variable that is not secret is the redirect URI, so that should be directly passed instead. The rest of these are assigned here
-CMD export NK_CLIENT_ID=$(cat /run/secrets/NK_CLIENT_ID) && export NK_CLIENT_SECRET=$(cat /run/secrets/NK_CLIENT_SECRET) && export DATABASE_URL=postgres://$(cat /run/secrets/DB_USERNAME):$(cat /run/secrets/DB_PASSWORD)@${DB_URL}:5432/$(cat /run/secrets/DB_NAME) && (node --loader ts-node/esm src/app.ts)
+# Now, simply ensure the DB is up to date and push
+CMD export DATABASE_URL=postgres://$(cat /run/secrets/DB_USERNAME):$(cat /run/secrets/DB_PASSWORD)@${DB_URL}:5432/$(cat /run/secrets/DB_NAME) && pnpm prisma migrate deploy

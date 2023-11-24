@@ -34,8 +34,10 @@ COPY --from=reducer /app/out/full/ .
 
 # Now use pnpm to build a reduced
 FROM installer AS builder
-# This will invoke the turbo build stage and build and packages that have dependencies
-RUN pnpm build
+# This will invoke the turbo build stage and build and packages that have dependencies. We need to mount the client ID and key
+RUN --mount=type=secret,id=NK_CLIENT_ID --mount=type=secret,id=MAP_KEY export VITE_NK_CLIENT_ID=$(cat /run/secrets/NK_CLIENT_ID) && export VITE_MAP_KEY=$(cat /run/secrets/MAP_KEY) && pnpm build
+# Remove all non-prod dependencies
+RUN pnpm prune --prod
 
 FROM base AS runner
 RUN pnpm install serve --global
@@ -44,8 +46,8 @@ WORKDIR /app
 # Don't run production as root
 RUN addgroup --system --gid 1001 frontend
 RUN adduser --system --uid 1001 frontend
-USER backend
-COPY --from=builder /apps/frontend/dist .
+USER frontend
+COPY --from=builder /app/apps/frontend/dist .
 
 # This container must expose said port
 EXPOSE 80
@@ -53,7 +55,7 @@ EXPOSE 80
 # Healthceck to determine if we're actually still serving stuff, just attempt to get the URL
 # If that fails, try exiting gracefully (SIGTERM), and if that fails force the container to die with SIGKILL.
 # This will invoke the restart policy, allowing compose to automatically rebuild the container
-HEALTHCHECK CMD wget --spider localhost || bash -c 'kill -s 15 -1 && (sleep 10; kill -s 9 -1)'
+HEALTHCHECK CMD wget --spider localhost:3000 || bash -c 'kill -s 15 -1 && (sleep 10; kill -s 9 -1)'
 
 # Now, simply run the prod
 CMD serve . -s

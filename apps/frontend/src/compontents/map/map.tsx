@@ -1,7 +1,7 @@
 import mapboxgl from "mapbox-gl";
 import { useEffect, useRef, useState } from "react";
 
-mapboxgl.accessToken = import.meta.env.VITE_MAP_KEY as string;
+mapboxgl.accessToken = import.meta.env.VITE_MAP_KEY;
 
 function Map() {
   const mapContainer = useRef<HTMLDivElement>(null);

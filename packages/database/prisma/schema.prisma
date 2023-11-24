@@ -3,7 +3,7 @@ generator client {
 }
 
 generator zod {
-  provider = "zod-prisma-types"
+  provider = "pnpm zod-prisma-types"
   output   = "../node_modules/.prisma/zod"
 }
 

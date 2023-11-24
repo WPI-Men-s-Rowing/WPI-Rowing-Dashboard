@@ -1,7 +1,7 @@
 import { ServerInferResponseBody } from "@ts-rest/core";
 import { initServer } from "@ts-rest/fastify";
 import contract from "api-schema";
-import { prisma } from "database";
+import fastify from "../app.ts";
 import {
   IDevicesByIdResponse,
   getAllDevices,
@@ -22,7 +22,7 @@ export default server.router(contract.nkAccounts.data, {
   getSessions: async ({ query, params }) => {
     // Validate the target account
     if (
-      !(await prisma.nkCredential.findUnique({
+      !(await fastify.prisma.nkCredential.findUnique({
         where: {
           userId: params.accountId,
         },
@@ -146,7 +146,7 @@ export default server.router(contract.nkAccounts.data, {
   getSession: async ({ params }) => {
     // Validate the target account
     if (
-      !(await prisma.nkCredential.findUnique({
+      !(await fastify.prisma.nkCredential.findUnique({
         where: {
           userId: params.accountId,
         },
@@ -184,7 +184,7 @@ export default server.router(contract.nkAccounts.data, {
   getSessionStrokes: async ({ params }) => {
     // Validate the target account
     if (
-      !(await prisma.nkCredential.findUnique({
+      !(await fastify.prisma.nkCredential.findUnique({
         where: {
           userId: params.accountId,
         },
@@ -232,7 +232,7 @@ export default server.router(contract.nkAccounts.data, {
   getSessionStroke: async ({ params }) => {
     // Validate the users account
     if (
-      !(await prisma.nkCredential.findUnique({
+      !(await fastify.prisma.nkCredential.findUnique({
         where: {
           userId: params.accountId,
         },
@@ -287,7 +287,7 @@ export default server.router(contract.nkAccounts.data, {
   getDevices: async ({ params }) => {
     // Validate the target account
     if (
-      !(await prisma.nkCredential.findUnique({
+      !(await fastify.prisma.nkCredential.findUnique({
         where: {
           userId: params.accountId,
         },
@@ -331,27 +331,19 @@ export default server.router(contract.nkAccounts.data, {
  */
 async function getAccessToken(userId: number): Promise<string> {
   // Get the user the token is associated with
-  const user = await prisma.nkCredential.findUniqueOrThrow({
+  const user = await fastify.prisma.nkCredential.findUniqueOrThrow({
     where: {
       userId: userId,
     },
   });
 
-  console.info("Checking access token expiry on user " + userId);
-
   // If the token has expired
   if (Date.now() > user.tokenExpiry.getTime()) {
-    console.info("Token expired on user " + userId);
-    console.log("Refreshing token for user " + userId);
-
     // Perform the refresh
     const result = await handleTokenRefresh(user.refreshToken);
 
-    console.log("Refresh token exchange complete for user " + userId);
-    console.info("Writing new token to database for user" + userId);
-
     // Update the user in the database
-    const newUser = await prisma.nkCredential.update({
+    const newUser = await fastify.prisma.nkCredential.update({
       where: {
         userId: user.userId,
       },
@@ -361,8 +353,6 @@ async function getAccessToken(userId: number): Promise<string> {
         tokenExpiry: new Date(Date.now() + result.expires_in * 1000),
       },
     });
-
-    console.info("Successfully wrote new token to database for user " + userId);
 
     // Now return the access token
     return newUser.accessToken;

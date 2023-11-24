@@ -7,11 +7,35 @@ import contract from "api-schema";
 import Fastify from "fastify";
 import fastifyGracefulShutdown from "fastify-graceful-shutdown";
 import fastifyHealthcheck from "fastify-healthcheck";
+import env from "./env.js";
+import prismaPlugin from "./plugins/prisma.ts";
 import nkAccountsRouter from "./routes/nk-accounts.ts";
+
+// Before anything else, try to verify that the env types are correct
+const parsedEnv = env.safeParse(process.env);
+if (!parsedEnv.success) {
+  console.error(parsedEnv.error); // Log the environment failure
+  process.exit(1); // Exit with an error code
+}
+
+// Map relating system type to logger. Recommended configuration per fastify
+const envToLogger = {
+  development: {
+    transport: {
+      target: "pino-pretty", // This enables some nice things like coloring and removal of stuff we don't need. This is a dev dependency
+      options: {
+        translateTime: "HH:MM:ss Z",
+        ignore: "pid,hostname",
+      },
+    },
+  },
+  production: true, // Automatically enable in prod with full output
+  test: false, // Disable in test
+};
 
 // Create the fastify server
 const fastify = Fastify({
-  logger: true,
+  logger: envToLogger[process.env.NODE_ENV], // Set the logger setting based on the current env
 });
 
 // Add the rate limiter
@@ -22,6 +46,9 @@ await fastify.register(fastifyHealthcheck);
 
 // Add the graceful shutdown system
 await fastify.register(fastifyGracefulShutdown);
+
+// Setup the database
+await fastify.register(prismaPlugin);
 
 // Setup the ts-rest schema
 const schemaServer = initServer();
@@ -57,7 +84,17 @@ if (process.env.NODE_ENV == "development") {
 
 // Now, try starting it up
 try {
-  await fastify.listen({ port: 3000 });
+  // Only open up to allow all traffic in production - when a proxy is used to control traffic
+  if (process.env.NODE_ENV == "production") {
+    await fastify.listen({ port: 3000, host: "0.0.0.0" });
+  } else {
+    // In local development, we don't want that exposure
+    await fastify.listen({ port: 3000 });
+  }
 } catch (error) {
-  fastify.log.error(error);
+  fastify.log.error(error); // Log any failures
+  process.exit(1); // Exit with an error code
 }
+
+// Export the fastify instance, so we can use it to get things
+export default fastify;

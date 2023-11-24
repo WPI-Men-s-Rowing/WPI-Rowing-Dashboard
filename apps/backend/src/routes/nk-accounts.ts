@@ -1,7 +1,8 @@
 import contract from "api-schema";
 
 import { initServer } from "@ts-rest/fastify";
-import { NkCredential, prisma } from "database";
+import { NkCredential } from "database";
+import fastify from "../app.ts";
 import { ITokenResponse, handleCodeExchange } from "../nk/oauth.js";
 import nkAccountsDataRouter from "./nk-accounts-data.ts";
 
@@ -11,7 +12,7 @@ const server = initServer();
 export default server.router(contract.nkAccounts, {
   getNkAccount: async ({ params }) => {
     // Now get the account at that ID
-    const account = await prisma.nkCredential.findUnique({
+    const account = await fastify.prisma.nkCredential.findUnique({
       where: {
         userId: params.id,
       },
@@ -40,7 +41,7 @@ export default server.router(contract.nkAccounts, {
   },
   deleteNKAccount: async ({ params }) => {
     // Now delete the account at that ID. Easy enough to do it this way, so we don't throw or anything if it fails
-    const deletedInfo = await prisma.nkCredential.deleteMany({
+    const deletedInfo = await fastify.prisma.nkCredential.deleteMany({
       where: {
         userId: params.id,
       },
@@ -66,7 +67,7 @@ export default server.router(contract.nkAccounts, {
     let updatedUser: NkCredential;
     // Now update the account at that ID
     try {
-      updatedUser = await prisma.nkCredential.update({
+      updatedUser = await fastify.prisma.nkCredential.update({
         where: {
           userId: params.id,
         },
@@ -98,7 +99,7 @@ export default server.router(contract.nkAccounts, {
   },
   getAllNkAccounts: async () => {
     // Get all NK Accounts
-    const accounts = await prisma.nkCredential.findMany();
+    const accounts = await fastify.prisma.nkCredential.findMany();
 
     // Now map the accounts into the expected types and return the account data
     return {
@@ -131,7 +132,7 @@ export default server.router(contract.nkAccounts, {
     }
 
     // Test to see if the user already exists
-    const alreadyExistingUser = await prisma.nkCredential.findUnique({
+    const alreadyExistingUser = await fastify.prisma.nkCredential.findUnique({
       where: {
         userId: result.user_id,
       },
@@ -143,7 +144,7 @@ export default server.router(contract.nkAccounts, {
     }
 
     // Await creating the credential, calculate the expiry
-    const createdAccount = await prisma.nkCredential.create({
+    const createdAccount = await fastify.prisma.nkCredential.create({
       data: {
         firstName: body.firstName,
         lastName: body.lastName,

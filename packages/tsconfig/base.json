@@ -4,6 +4,7 @@
   "compilerOptions": {
     "useDefineForClassFields": true,
     "composite": false,
+    "incremental": true,
     "declaration": true,
     "declarationMap": true,
     "forceConsistentCasingInFileNames": true,

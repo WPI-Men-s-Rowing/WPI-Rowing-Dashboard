@@ -3,7 +3,12 @@
   "pipeline": {
     "dev": {
       "dotEnv": [".env.development.local"],
-      "env": ["NK_CLIENT_ID", "NK_CLIENT_SECRET", "NK_REDIRECT_URI"]
+      "env": [
+        "NK_CLIENT_ID",
+        "NK_CLIENT_SECRET",
+        "NK_REDIRECT_URI",
+        "DATABASE_URL"
+      ]
     }
   }
 }

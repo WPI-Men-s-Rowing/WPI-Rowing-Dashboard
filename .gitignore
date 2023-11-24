@@ -26,3 +26,6 @@
 
 # Ignore environment variables
 **/.env*
+
+# Ignore typescript
+**/*.tsbuildinfo

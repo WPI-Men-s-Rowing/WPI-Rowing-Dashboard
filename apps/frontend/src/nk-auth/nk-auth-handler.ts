@@ -30,7 +30,7 @@ export function handleNkLoginRequest(state: Record<string, string>): void {
         {
           response_type: "code",
           // Look in the env file for the client id
-          client_id: import.meta.env.VITE_NK_CLIENT_ID as string,
+          client_id: import.meta.env.VITE_NK_CLIENT_ID,
           redirect_uri: window.location.origin + NkAuthRedirectPath,
           scope: "read",
           state: id,
