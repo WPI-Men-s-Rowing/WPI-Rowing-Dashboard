@@ -4,9 +4,14 @@ import eslint from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  // This is required, because the eslint plugin is a bit wrong :)
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  plugins: [react(), eslint()],
+  plugins: [
+    react(),
+    // This is required, because the eslint plugin is a bit wrong :)
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    eslint({
+      exclude: [/virtual:/, /node_modules/],
+    }),
+  ],
   server: {
     open: true,
     proxy: {

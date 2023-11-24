@@ -8,7 +8,9 @@
     "clean": "rm -rf dist",
     "build": "vite build",
     "typecheck": "tsc",
-    "lint": "eslint --max-warnings 0 --report-unused-disable-directives --fix ."
+    "lint": "eslint --max-warnings 0 --report-unused-disable-directives --fix .",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@tanstack/react-query": "^4.36.1",
@@ -30,6 +32,15 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@storybook/addon-essentials": "^7.5.3",
+    "@storybook/addon-interactions": "^7.5.3",
+    "@storybook/addon-links": "^7.5.3",
+    "@storybook/addon-onboarding": "^1.0.8",
+    "@storybook/addon-themes": "^7.5.3",
+    "@storybook/blocks": "^7.5.3",
+    "@storybook/react": "^7.5.3",
+    "@storybook/react-vite": "^7.5.3",
+    "@storybook/testing-library": "^0.2.2",
     "@types/mapbox-gl": "^2.7.17",
     "@types/qs": "^6.9.10",
     "@types/react": "^18.2.15",
@@ -38,6 +49,7 @@
     "autoprefixer": "^10.4.16",
     "eslint-config-custom": "workspace:*",
     "postcss": "^8.4.31",
+    "storybook": "^7.5.3",
     "tailwindcss": "^3.3.5",
     "tsconfig": "workspace:*",
     "typescript": "^5.0.2",
