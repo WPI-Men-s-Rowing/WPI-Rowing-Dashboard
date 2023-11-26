@@ -1,1 +1,1 @@
-export * from "../node_modules/.prisma/zod/index.ts";
+export * from ".prisma/zod/index.ts";
