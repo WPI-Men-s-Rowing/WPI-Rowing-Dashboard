@@ -6,7 +6,7 @@
       "dependsOn": ["^dependencies"]
     },
     "typecheck": {
-      "dependsOn": ["dependencies"]
+      "dependsOn": ["^db:generate", "dependencies"]
     },
     "lint": {
       "dependsOn": ["typecheck"]

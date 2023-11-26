@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "clean": "rimraf .turbo tsconfig.tsbuildinfo",
-    "dev": "dotenv -e .env.development.local -- docker run -p ${DB_PORT}:${DB_PORT} -e PGDATA=/var/lib/postgresql/data/pgdata --volume wpi-rowing-dash-db:/var/lib/postgresql/data postgres:latest",
+    "dev": "dotenv -e .env.development.local -- docker run -p ${DB_PORT}:${DB_PORT} -e PGDATA=/var/lib/postgresql/data/pgdata -e POSTGRES_USER -e POSTGRES_PASSWORD -e POSTGRES_DB -e PGPORT --volume wpi-rowing-dash-db:/var/lib/postgresql/data postgres:latest",
     "db:format": "prisma format",
     "db:push": "dotenv -e .env.development.local -- prisma db push --skip-generate",
     "db:generate": "prisma generate",

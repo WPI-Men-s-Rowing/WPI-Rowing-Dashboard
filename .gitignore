@@ -13,6 +13,7 @@
 **/*.local
 **/.turbo
 **/.prisma
+**/prisma/generated
 
 # Editor directories and files
 .vscode
