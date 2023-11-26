@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true,
+    "lib": ["esnext"],
+    "module": "nodenext",
+    "target": "ESNext",
+    "moduleResolution": "nodenext",
+    "allowSyntheticDefaultImports": true,
+    "strictNullChecks": true
+  },
+  "include": [
+    ".eslintrc.cjs",
+    "vite.config.ts",
+    "postcss.config.js",
+    "tailwind.config.ts",
+    ".storybook",
+    "index.d.ts"
+  ]
+}

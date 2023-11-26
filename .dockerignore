@@ -29,3 +29,8 @@
 
 # Ignore typescript
 **/*.tsbuildinfo
+
+# Ignore Docker elements
+**/Dockerfile
+docker-compose.*.yaml
+.gitignore
