@@ -1,0 +1,182 @@
+secrets:
+  DB_PASSWORD:
+    environment: "DB_PASSWORD"
+  DB_USERNAME:
+    environment: "DB_USERNAME"
+  DB_NAME:
+    environment: "DB_NAME"
+  MAP_KEY:
+    environment: "MAP_KEY"
+  NK_CLIENT_ID:
+    environment: "NK_CLIENT_ID"
+  NK_CLIENT_SECRET:
+    environment: "NK_CLIENT_SECRET"
+
+# Health check for all processes
+x-health-check: &health-check
+  interval: 5s
+  timeout: 5s
+  retries: 3
+
+# Running containers
+services:
+  # Traefik container, used for production routing. ALL requests will automatically be routed through here
+  # (hence why this is the only service with a "ports") to their appropriate destination based on the routing rules
+  traefik:
+    image: traefik:latest
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+
+      # This is what will actually be used
+      - "--entrypoints.websecure.address=:443"
+
+      # Expose the standard HTTP port, have it automatically redirect to https
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+    # Everything enters through Traefik, so this exposes the environment
+    ports:
+      - "80:80"
+      - "443:443"
+    # Traefik requirement
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      # Mount the certificate, so that we don't try to renew the cert every time we start up
+      - acme-cert:/etc/traefik/acme
+    restart: always
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+
+  # Frontend (UI)
+  frontend:
+    # Environment allows this to work with prebuilt images
+    image: ghcr.io/wpi-men-s-rowing/wpi-rowing-dash-frontend:latest
+    build:
+      # This lets us have a nested Dockerfile and use the root context
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+      target: runner
+      # Image tags (where the image is pushed to)
+      tags:
+        - ghcr.io/wpi-men-s-rowing/wpi-rowing-dash-frontend:latest
+      # We only need Linux
+      platforms:
+        - linux/amd64
+      # Pull from the image cache
+      cache_from:
+        - type=registry,ref=ghcr.io/wpi-men-s-rowing/wpi-rowing-dash-frontend:cache
+      # Push to the image cache
+      cache_to:
+        - type=inline,ref=ghcr.io/wpi-men-s-rowing/wpi-rowing-dash-frontend:cache
+      # Grant access to all necessary secrets (only at build time)
+      secrets:
+        - MAP_KEY
+        - NK_CLIENT_ID
+    environment:
+      PORT: 3000
+    # This is the exposed production port, so that Traefik routing can access it
+    expose:
+      - 3000
+    # Traefik labels
+    labels:
+      - "traefik.enable=true"
+
+      # The 443 entrypoint is the actual site, require TLS
+      - "traefik.http.routers.frontend-https.entrypoints=websecure"
+      - "traefik.http.routers.frontend-https.tls=true"
+
+      # This helps with some DNS poisoning attacks, and uses the frontend as a fallthrough route
+      - "traefik.http.routers.frontend-https.rule=PathPrefix(`/`)"
+
+      # Despite the "loadbalancer" naming, this just describes what port this container exposes
+      - "traefik.http.services.frontend-https.loadbalancer.server.port=3000"
+    restart: always
+    healthcheck: *health-check
+
+  # Backend (API)
+  backend:
+    # Grant access to the appropriate secrets. This grants runtime access
+    secrets:
+      - DB_USERNAME
+      - DB_PASSWORD
+      - DB_NAME
+      - NK_CLIENT_ID
+      - NK_CLIENT_SECRET
+    # Environment allows this to work with prebuilt images
+    environment:
+      # Pass through these environment variables that we know here without secrets
+      - NK_REDIRECT_URI=https://wpirowing.qra.us/nk-auth-redirect
+      - DB_URL=database
+      - DB_PORT=5432
+      - PORT=3000
+    image: ghcr.io/wpi-men-s-rowing/wpi-rowing-dash-backend:latest
+    build:
+      # This lets us have a nested Dockerfile and use the root context
+      context: .
+      dockerfile: apps/backend/Dockerfile
+      target: runner
+      # Pull from the image cache
+      cache_from:
+        - type=registry,ref=ghcr.io/wpi-men-s-rowing/wpi-rowing-dash-backend:cache
+      # Push to the image cache
+      cache_to:
+        - type=inline,ref=ghcr.io/wpi-men-s-rowing/wpi-rowing-dash-backend:cache
+      # Target linux AMD64 only
+      platforms:
+        - linux/amd64
+      # Image tags
+      tags:
+        # This is where the image should go
+        - ghcr.io/wpi-men-s-rowing/wpi-rowing-dash-backend:latest
+    # This is the exposed production port, so that Traefik routing can access it
+    expose:
+      - 3000
+    # Traefik labels
+    labels:
+      - "traefik.enable=true"
+
+      # The 443 entrypoint is the actual site, require TLS
+      - "traefik.http.routers.backend-https.entrypoints=websecure"
+      - "traefik.http.routers.backend-https.tls=true"
+
+      # This helps with some DNS poisoning attacks, and automatically proxies API requests to the API
+      - "traefik.http.routers.backend-https.rule=PathPrefix(`/api`)"
+
+      # Despite the "loadbalancer" naming, this just describes what port this container exposes
+      - "traefik.http.services.backend-https.loadbalancer.server.port=3000"
+    restart: always
+    healthcheck: *health-check
+    depends_on:
+      database:
+        condition: service_healthy
+  database:
+    image: postgres:latest
+    # Expose the PG port, so other containers can talk to it
+    expose:
+      - 5432
+    # Grant access to the appropriate secrets
+    secrets:
+      - DB_USERNAME
+      - DB_PASSWORD
+      - DB_NAME
+      # Use the DB args defined above
+    environment:
+      - POSTGRES_USER_FILE=/run/secrets/DB_USERNAME
+      - POSTGRES_PASSWORD_FILE=/run/secrets/DB_PASSWORD
+      - POSTGRES_DB_FILE=/run/secrets/DB_NAME
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - PGPORT=5432
+    volumes:
+      - wpi-rowing-dash-db:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U $(cat /run/secrets/DB_USERNAME) -d $(cat /run/secrets/DB_NAME)
+      <<: *health-check
+    restart: always
+volumes:
+  acme-cert:
+  wpi-rowing-dash-db:

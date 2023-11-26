@@ -1,0 +1,37 @@
+{
+  "extends": ["//"],
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "db:format": {},
+    "lint": {
+      "dependsOn": ["db:format", "db:generate", "typecheck"]
+    },
+    "db:seed": {
+      "dotEnv": [".env.development.local"],
+      "env": [
+        "NK_AUTH_DEVICE_ID",
+        "NK_AUTH_EMAIL",
+        "NK_AUTH_PASSWORD",
+        "NK_REDIRECT_URI",
+        "NK_CLIENT_ID",
+        "NK_CLIENT_SECRET",
+        "NK_AUTH_FIRST_NAME",
+        "NK_AUTH_LAST_NAME",
+        "DATABASE_URL"
+      ]
+    },
+    "db:push": {
+      "dotEnv": [".env.development.local"],
+      "env": ["DATABASE_URL"]
+    },
+    "dev": {
+      "dotEnv": [".env.development.local"],
+      "env": [
+        "POSTGRES_USER",
+        "POSTGRES_PASSWORD",
+        "POSTGRES_DB",
+        "POSTGRES_PORT"
+      ]
+    }
+  }
+}
