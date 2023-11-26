@@ -11,7 +11,7 @@
     "src/**"
   ],
   "scripts": {
-    "clean": "rm -r .turbo && rm tsconfig.tsbuildinfo",
+    "clean": "rimraf .turbo tsconfig.tsbuildinfo",
     "typecheck": "tsc",
     "lint": "eslint --max-warnings 0 --report-unused-disable-directives --fix ."
   },

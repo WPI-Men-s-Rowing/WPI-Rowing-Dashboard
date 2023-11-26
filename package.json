@@ -3,7 +3,7 @@
   "packageManager": "pnpm@8.10.2",
   "scripts": {
     "build": "dotenv -e .env.development.local -- turbo build",
-    "clean": "rm -r .turbo && turbo clean",
+    "clean": "rm -rf .turbo && turbo clean",
     "dev": "dotenv -e .env.development.local -- turbo dev --no-cache  --continue",
     "format": "prettier --write --ignore-unknown .",
     "lint": "turbo lint",
@@ -21,6 +21,7 @@
     "prettier": "^3.0.3",
     "prettier-plugin-organize-imports": "^3.2.3",
     "prettier-plugin-tailwindcss": "^0.5.6",
+    "rimraf": "^5.0.5",
     "turbo": "^1.9.3"
   }
 }

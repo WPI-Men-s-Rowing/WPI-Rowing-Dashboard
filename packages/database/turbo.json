@@ -3,8 +3,11 @@
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
     "db:format": {},
+    "typecheck": {
+      "dependsOn": ["db:generate"]
+    },
     "lint": {
-      "dependsOn": ["db:format", "db:generate", "typecheck"]
+      "dependsOn": ["db:format", "typecheck"]
     },
     "db:seed": {
       "dotEnv": [".env.development.local"],
