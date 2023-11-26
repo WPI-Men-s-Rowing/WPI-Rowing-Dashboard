@@ -172,7 +172,7 @@ services:
       - PGDATA=/var/lib/postgresql/data/pgdata
       - PGPORT=5432
     volumes:
-      - wpi-rowing-dash-db:/var/lib/postgresql/data postgres:latest
+      - wpi-rowing-dash-db:/var/lib/postgresql/data
     healthcheck:
       test: pg_isready -U $(cat /run/secrets/DB_USERNAME) -d $(cat /run/secrets/DB_NAME)
       <<: *health-check

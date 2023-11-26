@@ -17,7 +17,8 @@ services:
     environment:
       # Pass through these environment variables that we know here without secrets
       - NK_REDIRECT_URI=https://wpirowing.qra.us/nk-auth-redirect
-      - DB_URL=database
+      - DB_URL=database # Point to the DB container below
+      - DB_PORT=5432 # Ensure this is up to date with the DB image below
     image: ghcr.io/wpi-men-s-rowing/wpi-rowing-dash-db-migrate:latest
     build:
       # This lets us have a nested Dockerfile and use the root context
@@ -44,10 +45,20 @@ services:
     extends:
       file: docker-compose.yaml
       service: database
+    # Grant access to the appropriate secrets
     secrets:
       - DB_USERNAME
       - DB_PASSWORD
       - DB_NAME
+      # Use the DB args defined above
+    environment:
+      - POSTGRES_USER_FILE=/run/secrets/DB_USERNAME
+      - POSTGRES_PASSWORD_FILE=/run/secrets/DB_PASSWORD
+      - POSTGRES_DB_FILE=/run/secrets/DB_NAME
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - PGPORT=5432
+    volumes:
+      - wpi-rowing-dash-db:/var/lib/postgresql/data
     restart: "no"
 volumes:
   wpi-rowing-dash-db:
