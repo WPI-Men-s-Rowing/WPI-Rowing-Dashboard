@@ -3,7 +3,7 @@
   "packageManager": "pnpm@8.10.2",
   "scripts": {
     "build": "dotenv -e .env.development.local -- turbo build",
-    "clean": "turbo clean",
+    "clean": "rm -r .turbo && turbo clean",
     "dev": "dotenv -e .env.development.local -- turbo dev --no-cache  --continue",
     "format": "prettier --write --ignore-unknown .",
     "lint": "turbo lint",
