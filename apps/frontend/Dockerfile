@@ -49,13 +49,13 @@ RUN adduser --system --uid 1001 frontend
 USER frontend
 COPY --from=builder /app/apps/frontend/dist .
 
-# This container must expose said port
-EXPOSE 80
+# This container must expose the port (env variable)
+EXPOSE ${PORT}
 
 # Healthceck to determine if we're actually still serving stuff, just attempt to get the URL
 # If that fails, try exiting gracefully (SIGTERM), and if that fails force the container to die with SIGKILL.
 # This will invoke the restart policy, allowing compose to automatically rebuild the container
-HEALTHCHECK CMD wget --spider localhost:3000 || bash -c 'kill -s 15 -1 && (sleep 10; kill -s 9 -1)'
+HEALTHCHECK CMD wget --spider localhost:${PORT} || bash -c 'kill -s 15 -1 && (sleep 10; kill -s 9 -1)'
 
 # Now, simply run the prod
-CMD serve . -s
+CMD serve . -s -p ${PORT}

@@ -52,7 +52,7 @@ COPY --from=builder /app .
 WORKDIR /app/apps/backend
 
 # This container must expose said port
-EXPOSE 3000
+EXPOSE ${PORT}
 
 # Set the mode to production
 ENV NODE_ENV=production
@@ -60,7 +60,7 @@ ENV NODE_ENV=production
 # Healthceck to determine if we're actually still serving stuff, just attempt to get the URL
 # If that fails, try exiting gracefully (SIGTERM), and if that fails force the container to die with SIGKILL.
 # This will invoke the restart policy, allowing compose to automatically rebuild the container
-HEALTHCHECK CMD wget --spider localhost:3000/health || bash -c 'kill -s 15 -1 && (sleep 10; kill -s 9 -1)'
+HEALTHCHECK CMD wget --spider localhost:${PORT}/health || bash -c 'kill -s 15 -1 && (sleep 10; kill -s 9 -1)'
 
 # Now, simply run the system. These are all secrets, the only env variable that is not secret is the redirect URI, so that should be directly passed instead. The rest of these are assigned here
-CMD export NK_CLIENT_ID=$(cat /run/secrets/NK_CLIENT_ID) && export NK_CLIENT_SECRET=$(cat /run/secrets/NK_CLIENT_SECRET) && export DATABASE_URL=postgres://$(cat /run/secrets/DB_USERNAME):$(cat /run/secrets/DB_PASSWORD)@${DB_URL}:5432/$(cat /run/secrets/DB_NAME) && (node --loader ts-node/esm src/app.ts)
+CMD export NK_CLIENT_ID=$(cat /run/secrets/NK_CLIENT_ID) && export NK_CLIENT_SECRET=$(cat /run/secrets/NK_CLIENT_SECRET) && export DATABASE_URL=postgres://$(cat /run/secrets/DB_USERNAME):$(cat /run/secrets/DB_PASSWORD)@${DB_URL}:${DB_PORT}/$(cat /run/secrets/DB_NAME) && (node --loader ts-node/esm src/app.ts)

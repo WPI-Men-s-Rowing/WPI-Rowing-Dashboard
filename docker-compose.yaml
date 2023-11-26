@@ -77,6 +77,8 @@ services:
       secrets:
         - MAP_KEY
         - NK_CLIENT_ID
+    environment:
+      PORT: 3000
     # This is the exposed production port, so that Traefik routing can access it
     expose:
       - 3000
@@ -110,6 +112,8 @@ services:
       # Pass through these environment variables that we know here without secrets
       - NK_REDIRECT_URI=https://wpirowing.qra.us/nk-auth-redirect
       - DB_URL=database
+      - DB_PORT=5432
+      - PORT=3000
     image: ghcr.io/wpi-men-s-rowing/wpi-rowing-dash-backend:latest
     build:
       # This lets us have a nested Dockerfile and use the root context
@@ -166,6 +170,7 @@ services:
       - POSTGRES_PASSWORD_FILE=/run/secrets/DB_PASSWORD
       - POSTGRES_DB_FILE=/run/secrets/DB_NAME
       - PGDATA=/var/lib/postgresql/data/pgdata
+      - PGPORT=5432
     volumes:
       - wpi-rowing-dash-db:/var/lib/postgresql/data postgres:latest
     healthcheck:

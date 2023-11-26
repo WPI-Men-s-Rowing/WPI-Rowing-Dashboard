@@ -15,7 +15,7 @@ export default defineConfig({
   server: {
     open: true,
     proxy: {
-      "/api": "http://localhost:3000",
+      "/api": `http://${process.env.BACKEND_URL}:${process.env.BACKEND_PORT}`,
     },
   },
 });

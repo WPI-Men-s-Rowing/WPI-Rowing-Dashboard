@@ -7,7 +7,8 @@
         "NK_CLIENT_ID",
         "NK_CLIENT_SECRET",
         "NK_REDIRECT_URI",
-        "DATABASE_URL"
+        "DATABASE_URL",
+        "PORT"
       ]
     }
   }

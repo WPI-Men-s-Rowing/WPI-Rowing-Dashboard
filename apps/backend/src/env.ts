@@ -9,6 +9,7 @@ const env = z.object({
   NK_CLIENT_SECRET: z.string(), // The client secret for NKJ
   NK_REDIRECT_URI: z.string(), // The redirect URL for NK
   DATABASE_URL: z.string(), // The DB URL
+  PORT: z.coerce.number(), // The port to run on
   NODE_ENV: z.enum(["development", "production", "test"]), // Allowed node env types
 });
 

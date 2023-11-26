@@ -15,8 +15,8 @@
         "NK_REDIRECT_URI",
         "NK_CLIENT_ID",
         "NK_CLIENT_SECRET",
-        "NK_ACCOUNT_FIRST_NAME",
-        "NK_ACCOUNT_LAST_NAME",
+        "NK_AUTH_FIRST_NAME",
+        "NK_AUTH_LAST_NAME",
         "DATABASE_URL"
       ]
     },
@@ -26,7 +26,12 @@
     },
     "dev": {
       "dotEnv": [".env.development.local"],
-      "env": ["POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB"]
+      "env": [
+        "POSTGRES_USER",
+        "POSTGRES_PASSWORD",
+        "POSTGRES_DB",
+        "POSTGRES_PORT"
+      ]
     }
   }
 }

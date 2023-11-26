@@ -50,4 +50,4 @@ WORKDIR /app/packages/database
 ENV NODE_ENV=production
 
 # Now, simply ensure the DB is up to date and push
-CMD export DATABASE_URL=postgres://$(cat /run/secrets/DB_USERNAME):$(cat /run/secrets/DB_PASSWORD)@${DB_URL}:5432/$(cat /run/secrets/DB_NAME) && pnpm prisma migrate deploy
+CMD export DATABASE_URL=postgres://$(cat /run/secrets/DB_USERNAME):$(cat /run/secrets/DB_PASSWORD)@${DB_URL}:${DB_PORT}/$(cat /run/secrets/DB_NAME) && pnpm prisma migrate deploy

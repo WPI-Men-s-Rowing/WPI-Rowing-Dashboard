@@ -86,10 +86,10 @@ if (process.env.NODE_ENV == "development") {
 try {
   // Only open up to allow all traffic in production - when a proxy is used to control traffic
   if (process.env.NODE_ENV == "production") {
-    await fastify.listen({ port: 3000, host: "0.0.0.0" });
+    await fastify.listen({ port: process.env.PORT, host: "0.0.0.0" });
   } else {
     // In local development, we don't want that exposure
-    await fastify.listen({ port: 3000 });
+    await fastify.listen({ port: process.env.PORT });
   }
 } catch (error) {
   fastify.log.error(error); // Log any failures

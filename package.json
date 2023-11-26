@@ -2,18 +2,19 @@
   "private": true,
   "packageManager": "pnpm@8.10.2",
   "scripts": {
-    "build": "turbo build",
+    "build": "dotenv -e .env.development.local -- turbo build",
     "clean": "turbo clean",
-    "dev": "turbo dev --no-cache  --continue",
+    "dev": "dotenv -e .env.development.local -- turbo dev --no-cache  --continue",
     "format": "prettier --write --ignore-unknown .",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "prepare": "husky install",
-    "db:push": "turbo db:push",
-    "db:generate": "turbo db:generate",
-    "db:seed": "turbo db:seed"
+    "db:push": "dotenv -e .env.development.local -- turbo db:push",
+    "db:generate": "dotenv -e .env.development.local -- turbo db:generate",
+    "db:seed": "dotenv -e .env.development.local -- turbo db:seed"
   },
   "devDependencies": {
+    "dotenv-cli": "^7.3.0",
     "eslint": "^8.45.0",
     "husky": "^8.0.3",
     "lint-staged": "^15.0.2",

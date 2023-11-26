@@ -19,6 +19,12 @@ declare namespace NodeJS {
      * Database URL for NK
      */
     readonly DATABASE_URL: string;
+
+    /**
+     * The port to run on
+     */
+    readonly PORT: number;
+
     /**
      * Possible node environment types
      */
