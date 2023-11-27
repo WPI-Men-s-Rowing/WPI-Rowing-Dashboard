@@ -51,11 +51,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push frontend/backend
-        uses: docker/bake-action@v4
-        with:
-          push: true
-      - name: Build and push db-migrate
+      - name: Build and push all images
         uses: docker/bake-action@v4
         env:
           NK_CLIENT_ID: ${{ secrets.nk_client_id }}
