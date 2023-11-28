@@ -3,7 +3,6 @@
   "extends": "./base.json",
   "Display": "React",
   "compilerOptions": {
-    "allowJs": false,
     "jsx": "react-jsx",
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "ESNext",

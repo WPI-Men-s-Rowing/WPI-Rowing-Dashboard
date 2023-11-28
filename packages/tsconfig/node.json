@@ -3,7 +3,6 @@
   "extends": "./base.json",
   "Display": "Node",
   "compilerOptions": {
-    "allowJs": false,
     "lib": ["esnext"],
     "module": "nodenext",
     "target": "ESNext",
