@@ -3,7 +3,7 @@
   "pipeline": {
     "build": {
       "env": ["VITE_MAP_KEY", "VITE_NK_CLIENT_ID"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**/*"]
     },
     "dev": {
       "dotEnv": [".env.development.local"],

@@ -8,7 +8,7 @@
     "#components": "./src/components/index.ts"
   },
   "files": [
-    "src/**"
+    "src/**/*"
   ],
   "scripts": {
     "clean": "rimraf .turbo tsconfig.tsbuildinfo",
