@@ -2,7 +2,8 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "Default",
   "compilerOptions": {
-    "allowJs": false,
+    "allowJs": true,
+    "checkJs": true,
     "useDefineForClassFields": true,
     "composite": false,
     "incremental": true,
