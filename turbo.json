@@ -2,6 +2,10 @@
   "$schema": "https://turbo.build/schema.json",
   "globalDotEnv": [".env.development.local"],
   "pipeline": {
+    "storybook": {
+      "cache": false,
+      "persistent": true
+    },
     "dependencies": {
       "dependsOn": ["^dependencies"]
     },
@@ -30,6 +34,7 @@
     },
     "clean": {
       "cache": false
-    }
+    },
+    "//#format": {}
   }
 }
