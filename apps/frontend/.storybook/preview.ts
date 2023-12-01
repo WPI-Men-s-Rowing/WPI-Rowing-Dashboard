@@ -2,7 +2,8 @@ import { withThemeByClassName } from "@storybook/addon-themes";
 import type { Preview } from "@storybook/react";
 import "../src/index.css"; // Import CSS so that it is available to Storybook
 
-export const decorators = [
+// Using unknown here suppresses a TS warning. Not sure how else to get around it =)
+export const decorators: unknown = [
   withThemeByClassName({
     themes: {
       light: "light",

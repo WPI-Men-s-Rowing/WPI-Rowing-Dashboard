@@ -12,7 +12,7 @@
     "vite.config.ts",
     "postcss.config.js",
     "tailwind.config.ts",
-    ".storybook",
+    ".storybook/**/*",
     "index.d.ts"
   ]
 }
