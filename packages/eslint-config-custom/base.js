@@ -1,8 +1,13 @@
+// @ts-check
+const { defineConfig } = require("eslint-define-config");
+
+/// <reference types="@eslint-types/typescript-eslint" />
+
 const { resolve } = require("node:path");
 
 const project = resolve(process.cwd(), "tsconfig.json");
 
-module.exports = {
+module.exports = defineConfig({
   env: { es2020: true },
   extends: [
     "eslint:recommended",
@@ -33,4 +38,4 @@ module.exports = {
       },
     },
   },
-};
+});

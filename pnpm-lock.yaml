@@ -13,6 +13,9 @@ importers:
       eslint:
         specifier: ^8.45.0
         version: 8.45.0
+      eslint-define-config:
+        specifier: ^2.0.0
+        version: 2.0.0
       husky:
         specifier: ^8.0.3
         version: 8.0.3
@@ -8224,6 +8227,14 @@ packages:
     dependencies:
       eslint: 8.53.0
       eslint-plugin-turbo: 1.10.16(eslint@8.53.0)
+    dev: true
+
+  /eslint-define-config@2.0.0:
+    resolution:
+      {
+        integrity: sha512-M8ao9mAE35BGwjZeT8ZlsRA42wcJHWS29Avd0qfeclRXig6uTnGXcaO7UxVyFzUA1VJtxeV/acw4KrhJA3JqxQ==,
+      }
+    engines: { node: ">=18.0.0", npm: ">=9.0.0", pnpm: ">=8.6.0" }
     dev: true
 
   /eslint-mdx@2.2.0(eslint@8.53.0):
