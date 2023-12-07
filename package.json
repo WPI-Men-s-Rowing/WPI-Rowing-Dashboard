@@ -11,7 +11,8 @@
     "prepare": "husky install",
     "db:push": "dotenv -e .env.development.local -- turbo db:push",
     "db:generate": "dotenv -e .env.development.local -- turbo db:generate",
-    "db:seed": "dotenv -e .env.development.local -- turbo db:seed"
+    "db:seed": "dotenv -e .env.development.local -- turbo db:seed",
+    "storybook": "dotenv -e .env.development.local -- turbo storybook"
   },
   "devDependencies": {
     "dotenv-cli": "^7.3.0",
