@@ -64,18 +64,12 @@ importers:
       "@ts-rest/open-api":
         specifier: ^3.30.5
         version: 3.30.5(@ts-rest/core@3.30.5)(zod@3.22.4)
-      "@types/qs":
-        specifier: ^6.9.10
-        version: 6.9.10
       api-schema:
         specifier: workspace:*
         version: link:../../packages/api-schema
       axios:
         specifier: ^1.6.1
         version: 1.6.1
-      cookie-parser:
-        specifier: ~1.4.4
-        version: 1.4.6
       database:
         specifier: workspace:*
         version: link:../../packages/database
@@ -110,15 +104,15 @@ importers:
         specifier: ^3.22.4
         version: 3.22.4
     devDependencies:
-      "@types/cookie-parser":
-        specifier: ^1.4.6
-        version: 1.4.6
       "@types/http-errors":
         specifier: ^2.0.3
         version: 2.0.3
       "@types/node":
         specifier: ^20.2.3
         version: 20.8.10
+      "@types/qs":
+        specifier: ^6.9.10
+        version: 6.9.10
       dotenv:
         specifier: ^16.3.1
         version: 16.3.1
@@ -5308,15 +5302,6 @@ packages:
       "@types/node": 20.8.10
     dev: true
 
-  /@types/cookie-parser@1.4.6:
-    resolution:
-      {
-        integrity: sha512-KoooCrD56qlLskXPLGUiJxOMnv5l/8m7cQD2OxJ73NPMhuSz9PmvwRD6EpjDyKBVrdJDdQ4bQK7JFNHnNmax0w==,
-      }
-    dependencies:
-      "@types/express": 4.17.21
-    dev: true
-
   /@types/cross-spawn@6.0.3:
     resolution:
       {
@@ -5651,6 +5636,7 @@ packages:
       {
         integrity: sha512-3Gnx08Ns1sEoCrWssEgTSJs/rsT2vhGP+Ja9cnnk9k4ALxinORlQneLXFeFKOTJMOeZUFD1s7w+w2AphTpvzZw==,
       }
+    dev: true
 
   /@types/range-parser@1.2.6:
     resolution:
@@ -7365,30 +7351,12 @@ packages:
       }
     dev: true
 
-  /cookie-parser@1.4.6:
-    resolution:
-      {
-        integrity: sha512-z3IzaNjdwUC2olLIB5/ITd0/setiaFMLYiZJle7xg5Fe9KWAceil7xszYfHHBtDFYLSgJduS2Ty0P1uJdPDJeA==,
-      }
-    engines: { node: ">= 0.8.0" }
-    dependencies:
-      cookie: 0.4.1
-      cookie-signature: 1.0.6
-    dev: false
-
   /cookie-signature@1.0.6:
     resolution:
       {
         integrity: sha512-QADzlaHc8icV8I7vbaJXJwod9HWYp8uCqf1xa4OfNu1T7JVxQIrUgOWtHdNDtPiywmFbiS12VjotIXLrKM3orQ==,
       }
-
-  /cookie@0.4.1:
-    resolution:
-      {
-        integrity: sha512-ZwrFkGJxUR3EIoXtO+yVE69Eb7KlixbaeAWfBQB9vVsNn/o+Yw69gBWSSDK825hQNdN+wF8zELf3dFNl/kxkUA==,
-      }
-    engines: { node: ">= 0.6" }
-    dev: false
+    dev: true
 
   /cookie@0.5.0:
     resolution:
