@@ -16,7 +16,7 @@
     "db:format": "prisma format",
     "db:push": "dotenv -e .env.development.local -- prisma db push --skip-generate",
     "db:generate": "prisma generate",
-    "db:seed": "dotenv -e .env.development.local -- node --loader ts-node/esm prisma/seed.ts",
+    "db:seed": "dotenv -e .env.development.local -- prisma db seed",
     "typecheck": "tsc",
     "lint": "eslint --max-warnings 0 --report-unused-disable-directives --fix ."
   },
