@@ -12,8 +12,12 @@ export default contract.router(
       method: "GET",
       path: "/:accountId/data/sessions/:sessionId",
       responses: {
-        200: session,
-        404: notFoundError,
+        200: session.describe(
+          "Response given when a session is successfully retrieved",
+        ),
+        404: notFoundError.describe(
+          "Response given when a session is not found (invalid accountId/sessionId)",
+        ),
       },
       description: "Get a singular session from a singular account by its ID",
       pathParams: z.strictObject({
@@ -25,10 +29,14 @@ export default contract.router(
       method: "GET",
       path: "/:accountId/data/sessions",
       responses: {
-        200: z.strictObject({
-          sessions: z.array(session).describe("The sessions retrieved"),
-        }),
-        404: notFoundError,
+        200: z
+          .strictObject({
+            sessions: z.array(session).describe("The sessions retrieved"),
+          })
+          .describe("Response given when a session is successfully retrieved"),
+        404: notFoundError.describe(
+          "Response given when the provided account could not be found",
+        ),
       },
       description: "Get all sessions associated with an NK account",
       pathParams: z.strictObject({
@@ -141,10 +149,16 @@ export default contract.router(
       method: "GET",
       path: "/:accountId/data/sessions/:sessionId/strokes",
       responses: {
-        200: z.strictObject({
-          strokes: z.array(stroke).describe("Retrieved strokes"),
-        }),
-        404: notFoundError,
+        200: z
+          .strictObject({
+            strokes: z.array(stroke).describe("Retrieved strokes"),
+          })
+          .describe(
+            "Response given when the strokes are successfully retrieved",
+          ),
+        404: notFoundError.describe(
+          "Response given when the provided account or session could not be found",
+        ),
       },
       description: "Gets all strokes associated with a session",
       pathParams: z.strictObject({
@@ -155,7 +169,14 @@ export default contract.router(
     getSessionStroke: {
       method: "GET",
       path: "/:accountId/data/sessions/:sessionId/strokes/:strokeId",
-      responses: { 200: stroke, 404: notFoundError },
+      responses: {
+        200: stroke.describe(
+          "Response given when the stroke is successfully retrieved",
+        ),
+        404: notFoundError.describe(
+          "Response given when the provided account/session/stroke could not be found",
+        ),
+      },
       description: "Gets a singular stroke associated with a session by its ID",
       pathParams: z.strictObject({
         accountId: z.coerce.number().describe("The account ID"),
@@ -166,7 +187,14 @@ export default contract.router(
     getDevice: {
       method: "GET",
       path: "/:accountId/data/devices/:deviceId",
-      responses: { 200: device, 404: notFoundError },
+      responses: {
+        200: device.describe(
+          "Response given when the device is successfully retrieved",
+        ),
+        404: notFoundError.describe(
+          "Response given when the provided account/device could not be found",
+        ),
+      },
       description: "Gets all devices associated with an account by its ID",
       pathParams: z.strictObject({
         accountId: z.coerce.number().describe("The account ID"),
@@ -177,10 +205,16 @@ export default contract.router(
       method: "GET",
       path: "/:accountId/data/devices",
       responses: {
-        200: z.strictObject({
-          devices: z.array(device).describe("The retrieved devices"),
-        }),
-        404: notFoundError,
+        200: z
+          .strictObject({
+            devices: z.array(device).describe("The retrieved devices"),
+          })
+          .describe(
+            "Response given when the devices are successfully retrieved",
+          ),
+        404: notFoundError.describe(
+          "Response given when the provided account could not be found",
+        ),
       },
       description: "Gets all devices associated with an account",
       pathParams: z.strictObject({

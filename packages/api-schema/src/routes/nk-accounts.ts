@@ -13,9 +13,15 @@ export default contract.router(
       method: "POST",
       path: "/",
       responses: {
-        200: nKAccount,
-        400: genericError,
-        409: genericError,
+        200: nKAccount.describe(
+          "Response given when an account is successfully retrieved",
+        ),
+        400: genericError.describe(
+          "Response given when the provided authorization code is invalid, or the request is malformed",
+        ),
+        409: genericError.describe(
+          "Response given when the provided account already exists",
+        ),
       },
       description: "Create a new NK account",
       body: z.strictObject({
@@ -33,8 +39,12 @@ export default contract.router(
         id: z.coerce.number().describe("The unique account ID of the user"),
       }),
       responses: {
-        200: nKAccount,
-        404: notFoundError,
+        200: nKAccount.describe(
+          "Response given when the account is successfully retrieved",
+        ),
+        404: notFoundError.describe(
+          "Response given when the account could not be found",
+        ),
       },
       description: "Get an NK account by its ID",
     },
@@ -42,9 +52,13 @@ export default contract.router(
       method: "GET",
       path: "/",
       responses: {
-        200: z.strictObject({
-          accounts: z.array(nKAccount),
-        }),
+        200: z
+          .strictObject({
+            accounts: z.array(nKAccount),
+          })
+          .describe(
+            "Response given when the accounts are successfully retrieved",
+          ),
       },
       description: "Get all NK accounts",
     },
@@ -57,8 +71,14 @@ export default contract.router(
         id: z.coerce.number().describe("The ID of the account to delete"),
       }),
       responses: {
-        204: z.strictObject({}).describe("Returns an empty object"),
-        404: notFoundError,
+        204: z
+          .strictObject({})
+          .describe(
+            "Response given when the account is successfully deleted (no content)",
+          ),
+        404: notFoundError.describe(
+          "Response given when the account could not be found",
+        ),
       },
     },
     patchNKAccount: {
@@ -73,8 +93,12 @@ export default contract.router(
         lastName: z.string().describe("The last name to set on the account"),
       }),
       responses: {
-        200: nKAccount,
-        404: notFoundError,
+        200: nKAccount.describe(
+          "Response given when the account is successfully updated",
+        ),
+        404: notFoundError.describe(
+          "Response given when the account could not be found",
+        ),
       },
     },
     data: nkAccountsData,

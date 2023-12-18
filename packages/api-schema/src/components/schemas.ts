@@ -1,36 +1,32 @@
 import { z } from "zod";
 
-/**
- * Type representing a singular stroke from a singular session
- */
-export const stroke = z.strictObject({
-  id: z.number().describe("ID of the stroke"),
-  timestamp: z.date().describe("Timestamp of the stroke"),
-  latitude: z.number().describe("Latitude location of the stroke"),
-  longitude: z.number().describe("Longitude location of the stroke"),
-  speed: z
-    .number()
-    .describe("Instantaneous speed of the stroke in meters/second"),
-  totalDistance: z
-    .number()
-    .describe("Total distance gone over in the session to this point"),
-  elapsedTime: z
-    .number()
-    .describe("Total elapsed time in the session to this point"),
-  distPerStroke: z
-    .number()
-    .describe("Instantaneous distance per stroke (meters/stroke)"),
-  strokeRate: z
-    .number()
-    .describe("Instantaneous stroke rate to this point (strokes/minute)"),
-  strokeCount: z
-    .number()
-    .describe("Total number of strokes taken in the session to this point"),
-});
+export const stroke = z
+  .strictObject({
+    id: z.number().describe("ID of the stroke"),
+    timestamp: z.date().describe("Timestamp of the stroke"),
+    latitude: z.number().describe("Latitude location of the stroke"),
+    longitude: z.number().describe("Longitude location of the stroke"),
+    speed: z
+      .number()
+      .describe("Instantaneous speed of the stroke in meters/second"),
+    totalDistance: z
+      .number()
+      .describe("Total distance gone over in the session to this point"),
+    elapsedTime: z
+      .number()
+      .describe("Total elapsed time in the session to this point"),
+    distPerStroke: z
+      .number()
+      .describe("Instantaneous distance per stroke (meters/stroke)"),
+    strokeRate: z
+      .number()
+      .describe("Instantaneous stroke rate to this point (strokes/minute)"),
+    strokeCount: z
+      .number()
+      .describe("Total number of strokes taken in the session to this point"),
+  })
+  .describe("A singular stroke from a singular session");
 
-/**
- * Type representing a singular session
- */
 export const session = z
   .strictObject({
     id: z.number().describe("Unique ID for the session"),
@@ -108,38 +104,43 @@ export const session = z
   })
   .describe(
     "If the session type is intervals, this will have the recorded intervals. Otherwise, this will be empty",
-  );
+  )
+  .describe("Singular session, containing overall session data");
 
 /**
  * Type for a singular device
  */
-export const device = z.strictObject({
-  id: z.number().describe("The ID of the device"),
-  type: z
-    .enum(["SpeedCoach", "CoxBox"])
-    .describe("The possibilities for device type"),
-  model: z.string().describe("Human-readable device model name"),
-  name: z.string().describe("Human-assigned device name"),
-  firmwareVersion: z
-    .string()
-    .describe("Firmware version running on the device"),
-  hardwareVersion: z
-    .string()
-    .describe("Hardware version running on the device"),
-  serialNumber: z.string().describe("Serial number running on the device"),
-  manufacturerName: z.string().describe("Manufacturer name of the device"),
-  profileVersion: z
-    .string()
-    .describe("BLE profile version running on the device"),
-});
+export const device = z
+  .strictObject({
+    id: z.number().describe("The ID of the device"),
+    type: z
+      .enum(["SpeedCoach", "CoxBox"])
+      .describe("The possibilities for device type"),
+    model: z.string().describe("Human-readable device model name"),
+    name: z.string().describe("Human-assigned device name"),
+    firmwareVersion: z
+      .string()
+      .describe("Firmware version running on the device"),
+    hardwareVersion: z
+      .string()
+      .describe("Hardware version running on the device"),
+    serialNumber: z.string().describe("Serial number running on the device"),
+    manufacturerName: z.string().describe("Manufacturer name of the device"),
+    profileVersion: z
+      .string()
+      .describe("BLE profile version running on the device"),
+  })
+  .describe("Device containing basic information");
 
 /**
  * An NK Account schema type, with information that would be returned
  * by a request for an NK Account
  */
-export const nKAccount = z.strictObject({
-  firstName: z.string().describe("The first name assigned to the account"),
-  lastName: z.string().describe("The last name assigned to the account"),
-  userId: z.number().describe("The user's ID (assigned by NK)"),
-  ownTeamId: z.number().describe("The user's team ID (assigned by NK)"),
-});
+export const nKAccount = z
+  .strictObject({
+    firstName: z.string().describe("The first name assigned to the account"),
+    lastName: z.string().describe("The last name assigned to the account"),
+    userId: z.number().describe("The user's ID (assigned by NK)"),
+    ownTeamId: z.number().describe("The user's team ID (assigned by NK)"),
+  })
+  .describe("Basic information about an NK Account");
