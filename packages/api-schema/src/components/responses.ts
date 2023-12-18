@@ -4,18 +4,12 @@ import { z } from "zod";
  * Generic error response, with a human-readable message
  */
 export const genericError = z.strictObject({
-  /**
-   * @type {string} - human-readable message describing the error
-   */
-  message: z.string(),
+  message: z.string().describe("Human-readable message describing the error"),
 });
 
 /**
  * Error response for a 404 (e.g., something couldn't be found)
  */
 export const notFoundError = z.strictObject({
-  /**
-   * @type {string} - the name of the parameter that does not exist
-   */
-  key: z.string(),
+  key: z.string().describe("The name of the parameter that does not exist"),
 });
